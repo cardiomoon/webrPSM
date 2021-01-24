@@ -1,0 +1,128 @@
+id,en,kor
+1,"Please `select` one of sample data or `upload` your own. You can upload data as a `csv`, `xlsx`(Microsoft Excel), `dbf`(dbase 3+), `sav`(SPSS), `dta`(STATA), `sas7bdat`(SAS) format. If you have any error, please upload as a `csv` format.","샘플 `데이타를 선택`하시거나 자료를 `업로드` 하세요. 현재 지원하는 파일 형식은 `csv`,`xlsx`(Microsoft Excel), `dbf`(dbase 3+), `sav`(SPSS), `dta`(STATA), `sas7bdat`(SAS) 파일 등이나 에러가 있을 경우 `csv`형식으로 바꾸어 업로드할 것을 권장합니다."
+2,You can preprocess the data by entering the R command(s) here. Please uncheck the checkbox before enter/change the R command(s) and recheck the checkbox.,여기에 R명령어를 입력하면 데이터를 전처리할 수 있습니다. R 명령어를 입력/수정하기 전에 체크박스를 해제하고 입력후 다시 체크박스를 선택하시기 바랍니다.
+3,upload file,파일 업로드
+4,select Data,데이터선택
+5,show help for data,데이터 도움말 보기
+6, do Preprocessing,전처리하기
+7,Reset Preprocessing,전처리 초기화
+8,preprocessing,데이터 전처리하기
+9,Data Name,데이터이름
+10,Help for Data,데이터 도움말
+11,Enter R command as preprocessing,전처리에 사용할 명령어를 입력하세요.
+12,Enter valid R command,잘못된 명령어입니다.
+13,No information about the data.,데이터에 대한 도움말이 없습니다.
+14,Uploaded File,업로드된 파일
+0,"With this app, you can perform analysis `without` R in your computer. You can `analyze` data, make `tables` and `plots` and download the report as a `pdf`, `docx` or `pptx` file. You can also download the high-quality plots with desired size and resolution.","자신의 컴퓨터에 R을 설치할 필요 없이 R을 이용한 통계분석을 할 수 있읍니다. 그룹변수와 행변수를 선택하여 쉽게 표를 만들 수 있으며 그래프를 통한 자료 탐색과 여러가지 통계분석이 가능합니다. `자신의 데이타`를 xlsx 또는 csv형식으로 업로드하여 분석을 할 수 있을 뿐 아니라 그 결과를 `pdf`,`docx`,`powerpoint` 파일로 다운로드할 수 있읍니다. 또한 Plot을 원하는 크기로 저장할 수 있읍니다. `표가 보일 때까지 잠시만` 기다려주세요."
+15,download as CSV,CSV 형식으로 다운로드
+16,download as RDS,RDS 형식으로 다운로드
+17,Clean column names,열이름 정리하기
+18,Remove empty rows/cols,비어있는 행/열 삭제
+19,Use First Row as Label,첫번째 행을 라벨로 사용
+20,Reverse the coding,역순으로 만들기
+21,Convert to NA(missing value),NA(결측치)로 만들기
+22,Remove all NA(missing value),NA(결측치) 있는 자료 모두 제거
+23,String to Date,문자열을 날짜로 : 년/월/일 순서 선택
+24,Recode 0/1,0/1 로 입력되어 있는 자료를 바꾸기
+25,Calculate new column with existing columns,계산해서 새로운 열 만들기
+26,Apply Filter,조건에 맞는 자료만 선택(필터)
+27,Delete Rows,선택한 행 삭제
+28,Summarize Data with mean and se,그룹별 평균과 표준오차로 요약하기
+29,Make Long Form,넓은 형태의 자료를 긴 형태로 바꾸기
+30,Make Wide Form,긴 형태의 자료를 넓은 형태로 바꾸기
+31,Gather,자료 모으기(gather)
+32,Spread,자료 펼치기(spread)
+33,Arrange,자료 정렬하기
+34,Add Row Number,행번호 추가하기
+35,Favorite Preprocessing,전처리 쉽게하기
+36,Undo,되돌리기
+37,Labelling/ Calculate sum or mean / Recode / Standardize / Remove,라벨붙이기/합계/평균/역순처리/표준화/삭제
+38,All Columns,모든 열
+39,Selected Columns,선택된 열
+40,New column name,새 열 이름
+41,Calculate Sum,합계 계산
+42,Calculate Mean,평균 계산
+43,Rename Column,열이름바꾸기
+44,Select Columns,열 일부 선택
+45,Standardize,표준화하기
+46,Remove Columns,열 삭제하기
+47,Make Valid Number,숫자로 만들기(문자제거)
+48,Excel Number to Date,엑셀숫자를 날짜로
+49,Find Duplicate Data,중복데이타 찾기
+50,Select Preprocessing,전처리 선택하기
+51,Remove Empties,비어있는 행/열 삭제
+52,Reverse rank,역순처리
+53,AutoReverseRankSum,자동역순처리합계
+54,convert to NA,결측치(NA)로 만들기
+55,Remove all NA,결측치(NA) 제거
+56,Change to Date,날짜로 바꾸기
+57,include column name,열 이름 포함
+58,Recode 0/1,0/1 다시 코딩
+59,Calculate,계산하기
+60,Filter,필터적용
+61,Summarize,요약하기
+62,Make Long Form,긴형태로 바꾸기
+63,Make Wide Form,넓은 형태로 바꾸기
+64,Gather,자료모으기
+65,Spread,자료 펼치기
+66,Combine Data Sets,데이터 병합하기
+67,Values Labels ,값에 라벨 붙이기
+68,Label Values,값에 라벨붙이기
+69,Label All Selected Columns,선택한 열 모두 같은 라벨붙이기
+70,Remove Labels,선택한 열 라벨 지우기
+71,Remove All Labels,선택한 모든 열 라벨 지우기
+72,Encode as a factor,범주형변수(factor)로 만들기
+73,"pecify the order(if omitted, alphabetical order)",순서정하기(생략시 알파벳순서)
+74,Recode: Rename the code,Recode:이름 바꾸기
+75,Make a Factor,Factor로 바꾸기
+76,Label the column/Value,열이름/값에 라벨 붙이기
+77,Values Labels,값에 라벨 붙이기
+78,cut points,cutpoint로 나누기
+79,k groups,군 갯수 k
+80,Make Subgroup,서브그룹 만들기
+81,Label the column:,열이름 라벨 붙이기:
+82,Sum,합계
+83,Mean,평균
+84,Make subsets by ,를 기준으로 몇개의 군으로 나누기
+85,upload 2nd data,두번째 데이터 업로드
+86,Or enter 2nd data name,또는 두번째 데이터 이름 입력
+87,Select method,병합 방법 선택
+88,show data structures,데이터 구조 보기
+89,Show all preprocessing,전처리 모두 보기
+90,Mean Centering ,평균중심화
+91,Grouping Variable(s),그룹변수(열변수) 선택
+92,"Select Grouping Variable
+",그룹변수 선택
+93,Select the 2nd Grouping Variable(optional),2차 그룹변수 선택(선택사항)
+94,Select Row Variables,행 변수 선택
+95,select all variables,모든 변수 선택
+96,"add row variables
+",행 변수 추가
+97,del row variables,행 변수 삭제
+98,forces analysis as normal-distributed,정규분포하는 것으로 가정
+99,forces analysis as non-normal,정규분포하지 않는 것으로 가정
+100,performs a normality test,정규성 검정시행
+101,Descriptive Statistics,기술통계량
+102,Continuous Variables,연속형변수
+103,Categorical Variables ,범주형변수
+104,Missing Data,누락된 자료
+105,Outlier,이상치보기
+106,Summary for Categorical Variables,범주형변수 요약
+107,add statistics,통계량추가
+108,including continuous variables,연속형변수 포함
+109,Swap Variables,행열전환
+110,Show Statistics,통계보기
+111,show column label,열라벨 보이기
+112,show value labels,항목라벨 보이기
+113,add value,값 표시하기
+114,select variable,변수선택
+115,Summary for continuous variable(s),연속형 변수 통계치 요약
+116,Grouping variable,그룹변수선택
+117,add histogram,히스토그램 추가
+118,NA counts,누락된 갯수
+119,There is no missing value.,누락된 값이 없습니다.
+120,column name,열이름
+121,sd,표준편차
+122,outlier count,이상치 갯수
+123,outlier coef,이상치 기준
+124,select variable for outliers,변수를 선택하시면 이상치를 보실 수 있습니다.
