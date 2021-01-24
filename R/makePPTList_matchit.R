@@ -258,6 +258,10 @@ call2param=function(call){
 #' @param depvar Variable name serves as dependent variables
 #' @param compare logical
 #' @param report logical
+#' @param multiple logical
+#' @param depKind character One of c("continuous","binary","survival")
+#' @param covarCentering logical
+#' @param withinSubclass logical
 #' @importFrom lmtest coeftest
 #' @importFrom sandwich vcovCL
 #' @importFrom MatchIt matchit
@@ -269,7 +273,9 @@ call2param=function(call){
 #'  method= 'nearest',ratio=1,link='probit')"
 #' result=makePPTList_matchit(x)
 #' result=makePPTList_matchit(x,depvar="re78")
-makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE){
+makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
+                             multiple=TRUE, depKind="continuous",
+                             covarCentering=FALSE,withinSubclass=FALSE){
     #depvar="NULL"
      matched=eval(parse(text=x))
      result=call2param(matched$call)
@@ -373,13 +379,16 @@ makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE){
 
 
      if(!is.null(depvar)){
+       # str(depvar)
      title=c(title,"Estimating Treatment Effect")
      type=c(type,"Rcode")
-     temp=paste0(
-"fit1=lm(",depvar,"~",yvar,"+",paste0(xvars,collapse='+'),",data=match.data,weights=weights)\n",
-"coeftest(fit1,vcov.=vcovCL,cluster=~subclass)")
+#      temp=paste0(
+# "fit1=lm(",depvar,"~",yvar,"+",paste0(xvars,collapse='+'),",data=match.data,weights=weights)\n",
+# "coeftest(fit1,vcov.=vcovCL,cluster=~subclass)")
+     temp1=paste0("c('",paste0(depvar,collapse="','"),"')")
+     temp=paste0("estimateEffect(matched,mode='",depKind,"',multiple=",multiple,
+                 ",dep=",temp1,",covarCentering=",covarCentering,",withinSubclass=",withinSubclass,")")
      code=c(code,temp)
-
 
      }
      if(compare){
