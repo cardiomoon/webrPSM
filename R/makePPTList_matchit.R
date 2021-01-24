@@ -393,7 +393,7 @@ makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE){
      }
      if(report){
        title=c(title,"Report PS Matching")
-       type=c(type,"Rcode")
+       type=c(type,"html")
        code=c(code,"cat(reportPSM(matched))")
 
      }
