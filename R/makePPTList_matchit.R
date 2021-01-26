@@ -378,19 +378,6 @@ makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
      code=c(code,"cobalt::bal.plot(out,var.name='distance',which='both',type='histogram',mirror=TRUE)")
 
 
-     if(!is.null(depvar)){
-       # str(depvar)
-     title=c(title,"Estimating Treatment Effect")
-     type=c(type,"Rcode")
-#      temp=paste0(
-# "fit1=lm(",depvar,"~",yvar,"+",paste0(xvars,collapse='+'),",data=match.data,weights=weights)\n",
-# "coeftest(fit1,vcov.=vcovCL,cluster=~subclass)")
-     temp1=paste0("c('",paste0(depvar,collapse="','"),"')")
-     temp=paste0("estimateEffect(matched,mode='",depKind,"',multiple=",multiple,
-                 ",dep=",temp1,",covarCentering=",covarCentering,",withinSubclass=",withinSubclass,")")
-     code=c(code,temp)
-
-     }
      if(compare){
        title=c(title,"Balance Table")
        type=c(type,"Rcode")
@@ -398,6 +385,20 @@ makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
        title=c(title,"compare Love Plot")
        type=c(type,"ggplot")
        code=c(code,"compareLove.plot(matched)")
+
+     }
+
+     if(!is.null(depvar)){
+       # str(depvar)
+       title=c(title,"Estimating Treatment Effect")
+       type=c(type,"Rcode")
+       #      temp=paste0(
+       # "fit1=lm(",depvar,"~",yvar,"+",paste0(xvars,collapse='+'),",data=match.data,weights=weights)\n",
+       # "coeftest(fit1,vcov.=vcovCL,cluster=~subclass)")
+       temp1=paste0("c('",paste0(depvar,collapse="','"),"')")
+       temp=paste0("estimateEffect(matched,mode='",depKind,"',multiple=",multiple,
+                   ",dep=",temp1,",covarCentering=",covarCentering,",withinSubclass=",withinSubclass,")")
+       code=c(code,temp)
 
      }
      if(report){
