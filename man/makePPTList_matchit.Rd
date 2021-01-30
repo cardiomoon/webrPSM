@@ -4,7 +4,16 @@
 \alias{makePPTList_matchit}
 \title{make pptList with an object of class matchit}
 \usage{
-makePPTList_matchit(x, depvar = NULL, compare = TRUE, report = TRUE)
+makePPTList_matchit(
+  x,
+  depvar = NULL,
+  compare = TRUE,
+  report = TRUE,
+  multiple = TRUE,
+  depKind = "continuous",
+  covarCentering = FALSE,
+  withinSubclass = FALSE
+)
 }
 \arguments{
 \item{x}{An object of class matchit}
@@ -14,14 +23,21 @@ makePPTList_matchit(x, depvar = NULL, compare = TRUE, report = TRUE)
 \item{compare}{logical}
 
 \item{report}{logical}
+
+\item{multiple}{logical}
+
+\item{depKind}{character One of c("continuous","binary","survival")}
+
+\item{covarCentering}{logical}
+
+\item{withinSubclass}{logical}
 }
 \description{
 make pptList with an object of class matchit
 }
 \examples{
 require(MatchIt)
-x="matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
- method= 'nearest',ratio=1,link='probit')"
+x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde, link='probit')
 result=makePPTList_matchit(x)
 result=makePPTList_matchit(x,depvar="re78")
 }

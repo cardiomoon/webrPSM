@@ -269,15 +269,24 @@ call2param=function(call){
 #' @export
 #' @examples
 #' require(MatchIt)
-#' x="matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
-#'  method= 'nearest',ratio=1,link='probit')"
+#' x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde, link='probit')
 #' result=makePPTList_matchit(x)
 #' result=makePPTList_matchit(x,depvar="re78")
 makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
                              multiple=TRUE, depKind="continuous",
                              covarCentering=FALSE,withinSubclass=FALSE){
-    #depvar="NULL"
-     matched=eval(parse(text=x))
+    # depvar="NULL";depvar=NULL;compare=TRUE;report=TRUE
+    # multiple=TRUE; depKind="continuous"
+    # covarCentering=FALSE;withinSubclass=FALSE
+
+     if(class(x)=="character") {
+         matched=eval(parse(text=x))
+         matchedCall=x
+     } else if(class(x)=="matchit"){
+         matched=x
+         temp=paste0(deparse(x$call),collapse="")
+         matchedCall=temp
+    }
      result=call2param(matched$call)
      result
      matchMethod=result$method
@@ -294,7 +303,7 @@ makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
      # if(distance!='glm') matchedCall=paste0(matchedCall,",distance='",distance,"'")
      # if(estimand!='ATT') matchedCall=paste0(matchedCall,",estimand='",estimand,"'")
      # matchedCall=paste0(matchedCall,")")
-     matchedCall=x
+
      eq=temp[2]
      df=matched$model$data
      dfname=temp[3]
