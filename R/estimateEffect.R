@@ -7,6 +7,10 @@ utils::globalVariables(c("id", "subclass"))
 #' @param dep Name of dependent variable
 #' @param covarCentering logical
 #' @param withinSubclass logical
+#' @param digits integer indicating the number of decimal places
+#' @param sedigits digits for standard error
+#' @param pdigits digits for p value
+#' @param se logical If true, report se. If false report confidence interval
 #' @importFrom survival Surv
 #' @importFrom margins margins
 #' @importFrom stats binomial glm quasibinomial
@@ -21,6 +25,7 @@ utils::globalVariables(c("id", "subclass"))
 #' out <- matchit(A ~ X1 + X2 + X3 + X4 + X5 + X6 + X7 + X8 + X9, data = exData)
 #' estimateEffect(out,dep=c("Y_C"),multiple=FALSE)
 #' estimateEffect(out,dep=c("Y_C"))
+#' estimateEffect(out,dep=c("Y_C","Y_B"))
 #' estimateEffect(out,mode="binary",dep=c("Y_B"),multiple=FALSE)
 #' estimateEffect(out,mode="binary",dep=c("Y_B"))
 #' estimateEffect(out,mode="survival",dep=c("Y_S"),multiple=FALSE)
@@ -53,12 +58,19 @@ utils::globalVariables(c("id", "subclass"))
 #' out=matchit(A ~ X1 + X2 + X3 + X4 + X5 + X6 + X7 + X8 + X9, data = swData,
 #' method = "full", estimand = "ATE",s.weights="SW")
 #' estimateEffect(out,dep=c("Y_C"))
-estimateEffect=function(out,mode="continuous",multiple=TRUE,dep,covarCentering=FALSE,withinSubclass=FALSE){
+estimateEffect=function(out,mode="continuous",multiple=TRUE,dep,
+                        covarCentering=FALSE,withinSubclass=FALSE,
+                        digits=2,sedigits=2,pdigits=4,se=TRUE){
 
-      # mode="survival";multiple=FALSE;dep="Y_C"
+       # mode="continuous";multiple=FALSE;dep="Y_C"
+  # covarCentering=FALSE;withinSubclass=TRUE
+  # digits=2;sedigits=2;pdigits=4;se=TRUE
+
     xvars=attr(out$model$terms,"term.labels")
     yvar=names(out$model$model)[1]
     replace=FALSE
+
+
     if(is.null(out$info$replace)){
       md=match.data(out)
     } else if(out$info$replace){
@@ -67,6 +79,26 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep,covarCentering=F
     } else{
         md=match.data(out)
     }
+
+    report=paste0("To estimate the '",yvar,"' effect and its standard error, we fit a linear regression model with ",
+                descNames(dep)," as the outcome and the '",yvar,"' ")
+    if(multiple) {
+      report=paste0(report,"and the covariates as additive predictors ")
+    } else{
+      report=paste0(report,"as a predictor ")
+    }
+    report=paste0(report,"and included the matching weights in the estimation. ",
+                  "The coefficient on the '",yvar,"' was taken to be the estimate of the '",yvar,"' effect. ")
+    if(mode=="continuous") {
+      report=paste0(report,"The lm() function was used to estimate the effect, ")
+    } else if(mode=="binary") {
+      report=paste0(report,"The glm() function was used to estimate the odds ratio, ")
+    } else{
+      report=paste0(report,"The coxph() function in the survival package was used to estimate the marginal harzard ratio, ")
+    }
+    report=paste0(report,
+                "and a cluster-robust variance as implemented in the vcovCL() function in the sandwich package was used",
+                " to estimate its standard error with matching stratum membership as the clustering variable. ")
     if(covarCentering){
         md[xvars]<-scale(md[xvars],scale=FALSE)
     }
@@ -161,7 +193,46 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep,covarCentering=F
 
     }
     result
+    if("summary.margins" %in% class(result)) {
+      result=result[-1]
+      class(result)="data.frame"
+    }
     rownames(result)=dep
+
+    for(i in 1:nrow(result)){
+      x=result[i,]
+    if(mode=="continuous"){
+      if(se){
+      report=paste0(report,"The estimated effect was ",round(x[1],digits),"(SE = ",round(x[2],sedigits))
+    } else {
+      report=paste0(report,"The estimated effect was ",round(x[1],digits),"(95% CI: ",round(x[5],digits),
+                    " - ",round(x[6],digits))
+    }
+    } else if(mode=="binary"){
+      report=paste0(report,"The estimated odds ratio was ",round(x[5],digits),"(95% CI: ",round(x[6],digits),
+                    " - ",round(x[7],digits))
+    } else{
+      report=paste0(report,"The estimated harzards ratio was ",round(x[6],digits),"(95% CI: ",round(x[7],digits),
+                    " - ",round(x[8],digits))
+    }
+    pno=4
+    if(mode=="survival") pno=5
+    if(x[pno]<0.0001){
+      report=paste0(report,", p < .0001), ")
+    }  else{
+       report=paste0(report,", p = ",round(x[pno],pdigits),"), ")
+    }
+
+
+    report=paste0(report,"indicating that the average effect of the '",
+                  yvar,"' for those who received it is ")
+    if(x[pno]<0.05){
+      report=paste0(report,"to ",ifelse(x[1]>=0,"increase","decrease")," '",dep,"'.")
+    } else{
+      report=paste0(report,"insignificant.")
+    }
+    }
+    attr(result,"report")=report
     result
 }
 

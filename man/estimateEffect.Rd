@@ -10,7 +10,11 @@ estimateEffect(
   multiple = TRUE,
   dep,
   covarCentering = FALSE,
-  withinSubclass = FALSE
+  withinSubclass = FALSE,
+  digits = 2,
+  sedigits = 2,
+  pdigits = 4,
+  se = TRUE
 )
 }
 \arguments{
@@ -25,6 +29,14 @@ estimateEffect(
 \item{covarCentering}{logical}
 
 \item{withinSubclass}{logical}
+
+\item{digits}{integer indicating the number of decimal places}
+
+\item{sedigits}{digits for standard error}
+
+\item{pdigits}{digits for p value}
+
+\item{se}{logical If true, report se. If false report confidence interval}
 }
 \description{
 Estimate Effect after matching
@@ -35,6 +47,7 @@ library(survival)
 out <- matchit(A ~ X1 + X2 + X3 + X4 + X5 + X6 + X7 + X8 + X9, data = exData)
 estimateEffect(out,dep=c("Y_C"),multiple=FALSE)
 estimateEffect(out,dep=c("Y_C"))
+estimateEffect(out,dep=c("Y_C","Y_B"))
 estimateEffect(out,mode="binary",dep=c("Y_B"),multiple=FALSE)
 estimateEffect(out,mode="binary",dep=c("Y_B"))
 estimateEffect(out,mode="survival",dep=c("Y_S"),multiple=FALSE)

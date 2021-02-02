@@ -15,18 +15,24 @@
 #' ggPSMSummary(x)
 ggPSMSummary=function(x,show.table=TRUE,xpos=NULL,ypos=NULL){
 
-      # show.table=TRUE;xpos=NULL;ypos=NULL
+     # show.table=TRUE;xpos=NULL;ypos=NULL
      xvars=attr(x$model$terms,"term.labels")
      yvar=names(x$model$model)[1]
      data1=x$model$data
      data2=match.data(x)
      summary(x)
+     summary(x)$sum.across
      # str(summary(x))
 
      res=summary(x)$sum.all[,3]
-     res2=summary(x)$sum.matched[,3]
+     if(is.null(summary(x)$sum.matched)){
+         res2=summary(x)$sum.across[,3]
+     } else{
+         res2=summary(x)$sum.matched[,3]
+     }
 
      res
+     res2
      df1=data.frame(value=abs(res))
      df1$name="All Data"
      df2=data.frame(value=abs(res2))
@@ -75,7 +81,7 @@ ggPSMSummary=function(x,show.table=TRUE,xpos=NULL,ypos=NULL){
 #' x=matchit(formula, data =lalonde, method= "nearest",ratio=1,caliper=0.25)
 #' PSMTable(x,grouplabel=c("Control","Treated"))
 PSMTable=function(x,digitsstd=3,grouplabel=NULL){
-        # digitsstd=3;grouplabel=NULL
+         # digitsstd=3;grouplabel=NULL
     xvars=attr(x$model$terms,"term.labels")
     yvar=names(x$model$model)[1]
     data1=x$model$data
@@ -92,7 +98,13 @@ PSMTable=function(x,digitsstd=3,grouplabel=NULL){
     restable=compress(restable)
     res=list()
     res[[1]]=round(summary(x)$sum.all[,3],digitsstd)
-    res[[2]]=round(summary(x)$sum.matched[,3],digitsstd)
+
+    if(is.null(summary(x)$sum.matched)){
+      res[[2]]=round(summary(x)$sum.across[,3],digitsstd)
+    } else{
+      res[[2]]=round(summary(x)$sum.matched[,3],digitsstd)
+    }
+
     res[[1]]=res[[1]][-1]
     res[[2]]=res[[2]][-1]
     start=1
@@ -269,20 +281,23 @@ call2param=function(call){
 #' @export
 #' @examples
 #' require(MatchIt)
-#' x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde, link='probit')
+#' x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
+#'    method="subclass",subclass=4)
+#' x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
+#'    method="full",link='probit')
 #' result=makePPTList_matchit(x)
 #' result=makePPTList_matchit(x,depvar="re78")
 makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
                              multiple=TRUE, depKind="continuous",
                              covarCentering=FALSE,withinSubclass=FALSE){
-    # depvar="NULL";depvar=NULL;compare=TRUE;report=TRUE
+    # depvar=NULL;compare=TRUE;report=TRUE
     # multiple=TRUE; depKind="continuous"
     # covarCentering=FALSE;withinSubclass=FALSE
 
-     if(class(x)=="character") {
+     if("character" %in% class(x)) {
          matched=eval(parse(text=x))
          matchedCall=x
-     } else if(class(x)=="matchit"){
+     } else if("matchit" %in% class(x)){
          matched=x
          temp=paste0(deparse(x$call),collapse="")
          matchedCall=temp
@@ -343,6 +358,13 @@ makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
      temp=paste0("summary(matched)")
      code=c(code,temp)
 
+     if(matchMethod=="subclass"){
+       title=c(title,paste0("Summary of Subclass"))
+       type=c(type,"Rcode")
+       temp=paste0("summary(matched,subclass=TRUE,un=FALSE)")
+       code=c(code,temp)
+     }
+
      title=c(title,"Covariates vs. Propensity Score")
      type=c(type,"ggplot")
      temp=paste0("ggPS(matched)")
@@ -374,7 +396,11 @@ makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
 
      title=c(title,"Love plot")
      type=c(type,"plot")
-     temp=paste0("plot(summary(matched),var.order='unmatched')")
+     if(matchMethod=="subclass"){
+         temp=paste0("plot(summary(matched,subclass=TRUE),var.order='unmatched',abs=FALSE)")
+     } else{
+          temp=paste0("plot(summary(matched),var.order='unmatched')")
+     }
      code=c(code,temp)
 
      title=c(title,"Summary of Propensity Score Matching")
@@ -387,13 +413,24 @@ makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
      code=c(code,"cobalt::bal.plot(out,var.name='distance',which='both',type='histogram',mirror=TRUE)")
 
 
-     if(compare){
+     if(compare & (matchMethod!="nearest")){
        title=c(title,"Balance Table")
        type=c(type,"Rcode")
        code=c(code,"makeCompareBalTab(matched)")
        title=c(title,"compare Love Plot")
        type=c(type,"ggplot")
        code=c(code,"compareLove.plot(matched)")
+
+     }
+
+     if(report){
+       title=c(title,"Report PS Matching")
+       type=c(type,"html")
+       if(is.null(depvar)){
+         code=c(code,paste0("cat(reportPSM(matched,compare=",compare,"))"))
+       } else{
+         code=c(code,paste0("cat(reportPSM(matched,depvar='",depvar,"',compare=",compare,"))"))
+       }
 
      }
 
@@ -405,15 +442,15 @@ makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
        # "fit1=lm(",depvar,"~",yvar,"+",paste0(xvars,collapse='+'),",data=match.data,weights=weights)\n",
        # "coeftest(fit1,vcov.=vcovCL,cluster=~subclass)")
        temp1=paste0("c('",paste0(depvar,collapse="','"),"')")
-       temp=paste0("estimateEffect(matched,mode='",depKind,"',multiple=",multiple,
-                   ",dep=",temp1,",covarCentering=",covarCentering,",withinSubclass=",withinSubclass,")")
+       temp=paste0("effect=estimateEffect(matched,mode='",depKind,"',multiple=",multiple,
+                   ",dep=",temp1,",covarCentering=",covarCentering,",withinSubclass=",withinSubclass,");effect")
        code=c(code,temp)
 
      }
      if(report){
-       title=c(title,"Report PS Matching")
+       title=c(title,"Report Treatment Effect")
        type=c(type,"html")
-       code=c(code,"cat(reportPSM(matched))")
+       code=c(code,"cat(attr(effect,'report'))")
 
      }
 

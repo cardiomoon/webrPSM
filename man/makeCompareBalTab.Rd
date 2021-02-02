@@ -4,10 +4,12 @@
 \alias{makeCompareBalTab}
 \title{Make balance table}
 \usage{
-makeCompareBalTab(out)
+makeCompareBalTab(out, print = TRUE)
 }
 \arguments{
 \item{out}{An object of a class matchit}
+
+\item{print}{logical}
 }
 \description{
 Make balance table

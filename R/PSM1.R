@@ -30,12 +30,22 @@ descNames=function(x=LETTERS[1:5]){
 #' reportSMD(out1)
 reportSMD=function(out){
     temp=""
-    SMD=summary(out)$sum.matched[,3]
+    if(is.null(summary(out)$sum.matched)){
+      matchSum=summary(out)$sum.across
+      matchAllSum=summary(out,interactions=TRUE)$sum.across
+
+    } else{
+      matchSum=summary(out)$sum.matched
+      matchAllSum=summary(out,interactions=TRUE)$sum.matched
+    }
+
+    SMD=matchSum[,3]
+
     highSMD=which(abs(SMD)>0.1)
     highSMDNames=names(SMD)[highSMD]
-    covarno=nrow(summary(out)$sum.matched)
-    allcovarno=nrow(summary(out,interactions=TRUE)$sum.matched)
-    SMD2=summary(out,interactions=TRUE)$sum.matched[(covarno+1):allcovarno,3]
+    covarno=nrow(matchSum)
+    allcovarno=nrow(matchAllSum)
+    SMD2=matchAllSum[(covarno+1):allcovarno,3]
     highSMD2=which(abs(SMD2)>0.15)
     highSMDNames2=names(SMD2)[highSMD2]
     if(length(highSMD)==0) {
@@ -79,7 +89,7 @@ reportSMD=function(out){
 #' out1=matchit(formula, data = lalonde, method= "full",distance="glm",link="probit")
 #' reportPSM(out1,depvar="re78")
 reportPSM=function(out,depvar="",compare=TRUE){
-     # depvar="re78"; compare=TRUE
+       # depvar="re78"; compare=TRUE
 
     xvars=attr(out$model$terms,"term.labels")
     yvar=names(out$model$model)[1]
@@ -92,11 +102,19 @@ reportPSM=function(out,depvar="",compare=TRUE){
     dfname=temp[3]
     dfname
 
+    out$estimand
     result$method
 
     temp=paste0("We used propensity score matching to estimate the average marginal effect of the '",yvar,"'")
     if(depvar!="") temp=paste0(temp," on '",depvar,"'")
-    temp=paste0(temp," on those who received it accounting for confounding by the included covariates. ")
+    if(out$estimand=="ATT"){
+       temp=paste0(temp," on those who received it ")
+    } else if(out$estimand=="ATE"){
+      temp=paste0(temp," for all units in the target population ")
+    } else if(out$estimand=="ATM"){
+      temp=paste0(temp," in the remaining matched sample ")
+    }
+    temp=paste0(temp,"accounting for confounding by the included covariates. ")
     resultSMD=reportSMD(out)
     resultSMD
     if((result$method!="nearest")&(compare)){
@@ -116,8 +134,6 @@ reportPSM=function(out,depvar="",compare=TRUE){
                 temp=paste0(temp," inadequate balance again, as indicated in Table and Figure." )
             }
         }
-    } else{
-
     }
 
     temp=paste0(temp,resultSMD$temp)
@@ -136,70 +152,13 @@ reportPSM=function(out,depvar="",compare=TRUE){
     }
 
     temp
-
-    if(depvar!=""){
-      fit1=lm(as.formula(paste0(depvar,"~",yvar,"+",paste0(xvars,collapse='+'))),data=match.data(out),weights=weights)
-      x=lmtest::coeftest(fit1,vcov.=vcovCL,cluster=~subclass)[yvar,,drop=FALSE]
-      result=reportEffect(fit1,yvar=yvar,depvar=depvar)
-      temp=paste0(temp,result)
-    }
-    temp
 }
 
 
-
-#' Report treatment Effect
-#' @param out An object of class lm
-#' @param yvar The name of group variable
-#' @param depvar The name of dependent variable
-#' @param digits integer indicating the number of decimal places
-#' @param sedigits digits for standard error
-#' @param pdigits digits for p value
-#' @param se logical If true, report se. If false report confidence interval
-#' @export
-#' @examples
-#'library(MatchIt)
-#'library(sandwich)
-#' formula= treat ~ age + educ + race+ married +nodegree + re74 + re75
-#' out=matchit(formula, data =lalonde, method= "full",link="probit")
-#' formula1= re78~treat +age + educ + race+ married +nodegree + re74 + re75
-#' out1=lm(formula1,data=match.data(out),weights=weights)
-#' reportEffect(out1,depvar="re78")
-#' reportEffect(out1,depvar="re78",se=FALSE)
-reportEffect=function(out,yvar="treat",depvar="re78",digits=2,sedigits=2,pdigits=4,se=TRUE){
-    # out=fit1
-    # yvar="treat";depvar="re78"
-    x=lmtest::coeftest(out,vcov.=vcovCL,cluster=~subclass)[yvar,,drop=FALSE]
-    ci=lmtest::coefci(out,vcov.=vcovCL,cluster=~subclass)[yvar,,drop=FALSE]
-    temp=paste0("To estimate the '",yvar,"' effect and its standard error, we fit a linear regression model with '",
-                 depvar,"' as the outcome and the '",yvar,"' and the covariates as additive predictors and ",
-                "included the matching weights in the estimation. The coefficient on the '",yvar,
-                "' was taken to be the estimate of the '",yvar,"' effect. The lm() function was used to estimate the effect",
-                ", and a cluster-robust variance as implemented in the vcovCL() function in the sandwich package was used",
-                " to estimate its standard error with matching stratum membership as the clustering variable. ")
-
-        if(se){
-          temp=paste0(temp,"The estimated effect was ",round(x[1],digits),"(SE = ",round(x[2],sedigits),
-                      ", p = ",round(x[4],pdigits),"), ")
-        } else {
-          temp=paste0(temp,"The estimated effect was ",round(x[1],digits),"(95% CI: ",round(ci[1],digits),
-                      " - ",round(ci[2],digits),", p = ",round(x[4],pdigits),"), ")
-        }
-
-
-        temp=paste0(temp,"indicating that the average effect of the '",
-                    yvar,"' for those who received it is ")
-        if(x[4]<0.05){
-           temp=paste0(temp,"to ",ifelse(x[1]>=0,"increase","decrease")," '",depvar,"'.")
-        } else{
-           temp=paste0(temp,"insignificant.")
-        }
-        temp
-
-}
 
 #'Make balance table
 #'@param out An object of a class matchit
+#'@param print logical
 #'@importFrom cobalt bal.tab
 #'@importFrom MatchIt matchit
 #'@export
@@ -208,11 +167,20 @@ reportEffect=function(out,yvar="treat",depvar="re78",digits=2,sedigits=2,pdigits
 #'formula=treat ~ age + educ + race+ married +nodegree + re74 + re75
 #'out=matchit(formula, data =lalonde, method= "full",link="probit")
 #'makeCompareBalTab(out)
-makeCompareBalTab=function(out){
+makeCompareBalTab=function(out,print=TRUE){
   out1=MatchIt::matchit(out$formula,data=out$model$data)
   weights=list(full=out,nn=out1)
   names(weights)[1]=out$info$method
-  cobalt::bal.tab(out$formula,data=out$model$data,un=TRUE,weights=weights)
+  res=cobalt::bal.tab(out$formula,data=out$model$data,un=TRUE,weights=weights)
+  if(print){
+  cat("Balance Meausures\n")
+  cat("-----------------\n")
+  print(res$Balance[c(1,2,4,6)])
+  cat("\nEffective sample sizes\n")
+  cat("----------------------\n")
+  print(res$Observations)
+  }
+  invisible(res)
 }
 
 #'Drow love plot comparing to nearest match

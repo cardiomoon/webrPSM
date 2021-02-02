@@ -37,7 +37,10 @@ make pptList with an object of class matchit
 }
 \examples{
 require(MatchIt)
-x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde, link='probit')
+x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
+   method="subclass",subclass=4)
+x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
+   method="full",link='probit')
 result=makePPTList_matchit(x)
 result=makePPTList_matchit(x,depvar="re78")
 }
