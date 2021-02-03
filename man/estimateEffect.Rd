@@ -14,7 +14,8 @@ estimateEffect(
   digits = 2,
   sedigits = 2,
   pdigits = 4,
-  se = TRUE
+  se = TRUE,
+  print = TRUE
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ estimateEffect(
 \item{pdigits}{digits for p value}
 
 \item{se}{logical If true, report se. If false report confidence interval}
+
+\item{print}{logical}
 }
 \description{
 Estimate Effect after matching

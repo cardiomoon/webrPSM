@@ -443,7 +443,7 @@ makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
        # "coeftest(fit1,vcov.=vcovCL,cluster=~subclass)")
        temp1=paste0("c('",paste0(depvar,collapse="','"),"')")
        temp=paste0("effect=estimateEffect(matched,mode='",depKind,"',multiple=",multiple,
-                   ",dep=",temp1,",covarCentering=",covarCentering,",withinSubclass=",withinSubclass,");effect")
+                   ",dep=",temp1,",covarCentering=",covarCentering,",withinSubclass=",withinSubclass,",print=FALSE);effect")
        code=c(code,temp)
 
      }

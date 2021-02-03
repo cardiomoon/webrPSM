@@ -4,7 +4,7 @@
 \alias{reportPSM}
 \title{Report propensity sore matching}
 \usage{
-reportPSM(out, depvar = "", compare = TRUE)
+reportPSM(out, depvar = "", compare = NULL)
 }
 \arguments{
 \item{out}{An object of class matchit}
@@ -21,6 +21,7 @@ library(MatchIt)
 formula=treat ~ age + educ + race+ married +nodegree + re74 + re75
 out=matchit(formula, data =lalonde, method= "nearest")
 reportPSM(out)
-out1=matchit(formula, data = lalonde, method= "full",distance="glm",link="probit")
-reportPSM(out1,depvar="re78")
+out=matchit(formula, data = lalonde, method= "full",distance="glm",link="probit")
+reportPSM(out,depvar="re78")
+reportPSM(out,depvar="re78",compare=FALSE)
 }

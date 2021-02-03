@@ -58,7 +58,7 @@ reportSMD=function(out){
         } else{
             temp=paste0(temp,
                         " but some standardized mean differences for squares and two-way interactions between",
-                        " covariates",descNames(highSMDNames2)," were above 0.15, indicating inadequate balance.")
+                        " covariates ",descNames(highSMDNames2)," were above 0.15.")
         }
     } else{
         temp=paste0(temp,
@@ -68,7 +68,8 @@ reportSMD=function(out){
     highSMD
     highSMD2
     list(
-        adequate=length(c(highSMD,highSMD2))==0,highSMD=highSMD,highSMD2=highSMD2,temp=temp
+        #adequate=length(c(highSMD,highSMD2))==0,highSMD=highSMD,highSMD2=highSMD2,temp=temp
+      adequate=length(c(highSMD))==0,highSMD=highSMD,highSMD2=highSMD2,temp=temp
     )
 }
 
@@ -86,9 +87,10 @@ reportSMD=function(out){
 #' formula=treat ~ age + educ + race+ married +nodegree + re74 + re75
 #' out=matchit(formula, data =lalonde, method= "nearest")
 #' reportPSM(out)
-#' out1=matchit(formula, data = lalonde, method= "full",distance="glm",link="probit")
-#' reportPSM(out1,depvar="re78")
-reportPSM=function(out,depvar="",compare=TRUE){
+#' out=matchit(formula, data = lalonde, method= "full",distance="glm",link="probit")
+#' reportPSM(out,depvar="re78")
+#' reportPSM(out,depvar="re78",compare=FALSE)
+reportPSM=function(out,depvar="",compare=NULL){
        # depvar="re78"; compare=TRUE
 
     xvars=attr(out$model$terms,"term.labels")
@@ -117,7 +119,22 @@ reportPSM=function(out,depvar="",compare=TRUE){
     temp=paste0(temp,"accounting for confounding by the included covariates. ")
     resultSMD=reportSMD(out)
     resultSMD
-    if((result$method!="nearest")&(compare)){
+    if(is.null(compare)){
+        if(result$method!="nearest") {
+          compare=TRUE
+        } else if(!is.null(out$info$replace)){
+            if(out$info$replace) {
+              compare=TRUE
+            } else{
+              compare=FALSE
+            }
+        } else if(!is.null(out$info$ratio)){
+           compare=TRUE
+        } else{
+           compare=FALSE
+        }
+    }
+    if(compare){
         temp=paste0(temp," We first attempted 1:1 nearest neighbor propensity score matching without replacement",
                     " with a propensity score estimated using logistic regression of the treatment on the covariates.")
         temp1=paste0("matchit(",yvar,"~",paste0(xvars,collapse="+"),",data=",dfname,")")
@@ -125,16 +142,31 @@ reportPSM=function(out,depvar="",compare=TRUE){
         result1=reportSMD(out1)
         result1
         if(!result1$adequate) {
-            temp=paste0(temp," This matching yielded poor balance, so we instead tried ",
-                        result$method," matching on the propensity score, which yielded")
-
-            if(resultSMD$adequate) {
-                temp=paste0(temp," adequate balance, as indicated in Table and Figure." )
-            } else{
-                temp=paste0(temp," inadequate balance again, as indicated in Table and Figure." )
-            }
+            temp=paste0(temp," But this matching yielded poor balance, so we tried ")
+        }
+    } else{
+        temp=paste0(temp," We tried ")
+    }
+    if(!is.null(out$info$ratio)){
+      temp=paste0(temp,out$info$ratio,":1 ")
+    }
+    temp=paste0(temp,result$method," matching on the propensity score ")
+    if(!is.null(out$info$replace)){
+        if(out$info$replace) {
+          temp=paste0(temp,"with replacement")
+        } else{
+          temp=paste0(temp,"without replacement")
         }
     }
+    temp=paste0(temp,", which yielded")
+
+    if(resultSMD$adequate) {
+                temp=paste0(temp," adequate balance, as indicated in Table and Figure. " )
+            } else{
+                temp=paste0(temp," inadequate balance, as indicated in Table and Figure. " )
+            }
+
+
 
     temp=paste0(temp,resultSMD$temp)
     temp=paste0(temp," The propensity score was estimated using a ",
