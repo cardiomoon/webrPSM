@@ -91,7 +91,7 @@ reportSMD=function(out){
 #' reportPSM(out,depvar="re78")
 #' reportPSM(out,depvar="re78",compare=FALSE)
 reportPSM=function(out,depvar="",compare=NULL){
-       # depvar="re78"; compare=TRUE
+        # depvar="re78"; compare=NULL
 
     xvars=attr(out$model$terms,"term.labels")
     yvar=names(out$model$model)[1]

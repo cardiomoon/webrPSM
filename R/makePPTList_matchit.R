@@ -446,13 +446,15 @@ makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
                    ",dep=",temp1,",covarCentering=",covarCentering,",withinSubclass=",withinSubclass,",print=FALSE);effect")
        code=c(code,temp)
 
-     }
-     if(report){
-       title=c(title,"Report Treatment Effect")
-       type=c(type,"html")
-       code=c(code,"cat(attr(effect,'report'))")
+       if(report){
+         title=c(title,"Report Treatment Effect")
+         type=c(type,"html")
+         code=c(code,"cat(attr(effect,'report'))")
+
+       }
 
      }
+
 
      data.frame(title,type,code,stringsAsFactors = FALSE)
 }
