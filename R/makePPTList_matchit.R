@@ -74,14 +74,16 @@ ggPSMSummary=function(x,show.table=TRUE,xpos=NULL,ypos=NULL){
 #' @importFrom officer fp_border
 #' @importFrom moonBook mytable compress
 #' @importFrom ztable ztable
-#' @importFrom flextable flextable delete_part add_header_row hline_top hline align merge_at width autofit hline_bottom
+#' @importFrom flextable flextable delete_part add_header_row hline_top hline align merge_at width autofit hline_bottom as_paragraph footnote
 #' @examples
 #' require(MatchIt)
-#' formula=treat ~ age + race+educ + married+nodegree + re74 + re75
-#' x=matchit(formula, data =lalonde, method= "nearest",ratio=1,caliper=0.25)
+#' formula=treat ~ age + educ + race+married+nodegree + re74 + re75
+#' x=matchit(formula, data =lalonde, method= "full")
+#' PSMTable(x,grouplabel=c("Control","Treated"))
+#' x=matchit(formula, data =lalonde, method= "nearest")
 #' PSMTable(x,grouplabel=c("Control","Treated"))
 PSMTable=function(x,digitsstd=3,grouplabel=NULL){
-         # digitsstd=3;grouplabel=NULL
+          # digitsstd=3;grouplabel=NULL
     xvars=attr(x$model$terms,"term.labels")
     yvar=names(x$model$model)[1]
     data1=x$model$data
@@ -112,17 +114,17 @@ PSMTable=function(x,digitsstd=3,grouplabel=NULL){
     end=ncol(restable[[1]]$res)-7
     end
 
-    x=restable[[1]]$res$ptest
+    px=restable[[1]]$res$ptest
     df=list()
     for( k in 1:2){
         df[[k]]=restable[[k]]$res[1:end]
         temp=c()
         j=1
-        for(i in 1:length(x)){
-            if(i==length(x)){
+        for(i in 1:length(px)){
+            if(i==length(px)){
               temp=c(temp,res[[k]][j])
               j=j+1
-            } else if((x[i]!="")&(x[i+1]=="")){
+            } else if((px[i]!="")&(px[i+1]=="")){
                 temp=c(temp,"")
             } else{
                 temp=c(temp,res[[k]][j])
@@ -135,6 +137,22 @@ PSMTable=function(x,digitsstd=3,grouplabel=NULL){
     df=cbind(df[[1]],df[[2]])
     df[[6]]<-""
     df
+
+    weighted=FALSE
+    if(length(unique(match.data(x)$weights))>1){
+      control<-treat<-p<-c()
+
+      for(i in seq_along(xvars)){
+        control<-c(control,getWeightedValues(x,xvars[i],treat=0))
+        treat<-c(treat,getWeightedValues(x,xvars[i],treat=1))
+        p<-c(p,getWeightedValues(x,xvars[i],treat=2))
+      }
+      df[[7]]=control
+      df[[8]]=treat
+      df[[9]]=p
+      weighted=TRUE
+    }
+
     subnames=colnames(df)
 
     colnames(df)=1:10
@@ -177,6 +195,10 @@ PSMTable=function(x,digitsstd=3,grouplabel=NULL){
         width(j=1,width=0.5) %>%
         width(j=2:5,width=1.2) %>%
         width(j=7:10,width=1.2)
+    if(weighted) ft <-footnote(ft,i=1,j=7,
+                               ref_symbols=c("*"),
+                               value=as_paragraph("Values are weighted mean \u00b1 weighted sd or weighted percentages"),
+                               part="header",inline=T)
     ft
 }
 
