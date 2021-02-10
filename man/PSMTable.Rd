@@ -19,7 +19,7 @@ Make flextable summarizing propensity score matching
 \examples{
 require(MatchIt)
 formula=treat ~ age + educ + race+married+nodegree + re74 + re75
-x=matchit(formula, data =lalonde, method= "full")
+x=matchit(formula, data =lalonde, method= "full",link="probit")
 PSMTable(x,grouplabel=c("Control","Treated"))
 x=matchit(formula, data =lalonde, method= "nearest")
 PSMTable(x,grouplabel=c("Control","Treated"))

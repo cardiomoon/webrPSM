@@ -4,17 +4,19 @@
 \alias{getWeightedValues}
 \title{Get weighted value or p value}
 \usage{
-getWeightedValues(x, xvar, treat = 1, digits = 1)
+getWeightedValues(x, digits = 1)
 }
 \arguments{
 \item{x}{An object of class matchit}
-
-\item{xvar}{character colume name}
-
-\item{treat}{numeric  If 0, control. If 1, treat. If 2 p value.}
 
 \item{digits}{numeric}
 }
 \description{
 Get weighted value or p value
+}
+\examples{
+require(MatchIt)
+formula=treat ~ age + educ + race+married+nodegree + re74 + re75
+x=matchit(formula, data =lalonde, method= "full",link="probit")
+getWeightedValues(x)
 }

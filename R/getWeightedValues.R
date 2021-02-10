@@ -37,31 +37,49 @@ weighted.var=function (x, weights = NULL, normwt = FALSE, na.rm = TRUE,
 
 #' Get weighted value or p value
 #' @param x An object of class matchit
-#' @param xvar character colume name
-#' @param treat numeric  If 0, control. If 1, treat. If 2 p value.
 #' @param digits numeric
 #' @importFrom survey svydesign svychisq
 #' @importFrom stats lm weighted.mean var
-getWeightedValues=function(x,xvar,treat=1,digits=1){
+#' @export
+#' @examples
+#' require(MatchIt)
+#' formula=treat ~ age + educ + race+married+nodegree + re74 + re75
+#' x=matchit(formula, data =lalonde, method= "full",link="probit")
+#' getWeightedValues(x)
+getWeightedValues=function(x,digits=1){
+    xvars=attr(x$model$terms,"term.labels")
     yvar=names(x$model$model)[1]
     df1=match.data(x)
-    summatch=as.data.frame(summary(x)$sum.matched[-1,])
+
+   if(x$info$method=="subclass"){
+       summatch=as.data.frame(summary(x)$sum.across[-1,])
+   } else{
+      summatch=as.data.frame(summary(x)$sum.matched[-1,])
+   }
+   summatch
     yvalues=sort(unique(df1[[yvar]]))
     data1=df1[df1[[yvar]]==yvalues[1],]
     data2=df1[df1[[yvar]]==yvalues[2],]
     ncontrol=nrow(data1)
     ntreat=nrow(data2)
-    temp=df1[[xvar]]
+
     form1=paste0("%.",digits,"f")
     form2=paste0("%",digits+2,".",digits,"f")
-    if(is.numeric(temp) & length(unique(temp))>2) {
-        if(treat==0){
-            result=paste0(sprintf(form1,weighted.mean(data1[[xvar]],data1$weights))," \u00b1 ",
-                          sprintf(form1,sqrt(weighted.var(data1[[xvar]],data1$weights))))
-        } else if(treat==1){
-            result=paste0(sprintf(form1,weighted.mean(data2[[xvar]],data2$weights))," \u00b1 ",
-                          sprintf(form1,sqrt(weighted.var(data2[[xvar]],data2$weights))))
-        } else{
+
+    control<-treat<-p<-c()
+
+    for(i in seq_along(xvars)){
+        xvar=xvars[i]
+        temp=df1[[xvar]]
+
+        if(is.numeric(temp) & length(unique(temp))>2) {
+
+            control=c(control,paste0(sprintf(form1,weighted.mean(data1[[xvar]],data1$weights))," \u00b1 ",
+                                     sprintf(form1,sqrt(weighted.var(data1[[xvar]],data1$weights)))))
+
+            treat=c(treat,paste0(sprintf(form1,weighted.mean(data2[[xvar]],data2$weights))," \u00b1 ",
+                                 sprintf(form1,sqrt(weighted.var(data2[[xvar]],data2$weights)))))
+
             formula=as.formula(paste0(xvar,"~",yvar))
             result=summary(lm(formula,data=df1,weights=weights))$coef[2,4]
             if(result<0.001) {
@@ -69,9 +87,8 @@ getWeightedValues=function(x,xvar,treat=1,digits=1){
             }else{
                 result=sprintf("%.3f",result)
             }
-        }
-    } else if(is.numeric(temp)){
-        if(treat==2){
+            p=c(p,result)
+        } else if(is.numeric(temp)){
             formula=as.formula(paste0("~",xvar,"+",yvar))
             result=svychisq(formula,design=svydesign(ids=~1,weights=~weights,data=df1))$p.value
             if(result<0.001) {
@@ -79,13 +96,14 @@ getWeightedValues=function(x,xvar,treat=1,digits=1){
             }else{
                 result=sprintf("%.3f",result)
             }
-        } else{
-            ratio=summatch[xvar,ifelse(treat,1,2)]
-            result=paste0(round(ifelse(treat,ntreat,ncontrol)*ratio)," (",sprintf(form2,ratio*100),"%)")
-        }
-    } else if(length(unique(temp))>2){
-        xvalues=sort(unique(df1[[xvar]]))
-        if(treat==2){
+            p=c(p,result)
+            ratio=summatch[xvar,1]
+            treat=c(treat,paste0(sprintf(form1,ntreat*ratio)," (",sprintf(form2,ratio*100),"%)"))
+            ratio=summatch[xvar,2]
+            control=c(control,paste0(sprintf(form1,ncontrol*ratio)," (",sprintf(form2,ratio*100),"%)"))
+
+        } else if(length(unique(temp))>2){
+            xvalues=sort(unique(df1[[xvar]]))
             formula=as.formula(paste0("~",xvar,"+",yvar))
             result=svychisq(formula,design=svydesign(ids=~1,weights=~weights,data=df1))$p.value
             if(result<0.001) {
@@ -93,16 +111,21 @@ getWeightedValues=function(x,xvar,treat=1,digits=1){
             }else{
                 result=sprintf("%.3f",result)
             }
-            result=c(result,rep("",length(xvalues)))
-        } else{
+            p=c(p,result,rep("",length(xvalues)))
+
             result=""
             for(j in seq_along(xvalues)){
-                ratio=summatch[paste0(xvar,xvalues[j]),ifelse(treat,1,2)]
-                result=c(result,paste0(round(ifelse(treat,ntreat,ncontrol)*ratio)," (",sprintf(form2,ratio*100),"%)"))
+                ratio=summatch[paste0(xvar,xvalues[j]),1]
+                result=c(result,paste0(sprintf(form1,ntreat*ratio)," (",sprintf(form2,ratio*100),"%)"))
             }
-        }
-    } else{
-        if(treat==2){
+            treat=c(treat,result)
+            result=""
+            for(j in seq_along(xvalues)){
+                ratio=summatch[paste0(xvar,xvalues[j]),2]
+                result=c(result,paste0(sprintf(form1,ncontrol*ratio)," (",sprintf(form2,ratio*100),"%)"))
+            }
+            control=c(control,result)
+        } else{
             formula=as.formula(paste0("~",xvar,"+",yvar))
             result=svychisq(formula,design=svydesign(ids=~1,weights=~weights,data=df1))$p.value
             if(result<0.001) {
@@ -110,12 +133,16 @@ getWeightedValues=function(x,xvar,treat=1,digits=1){
             }else{
                 result=sprintf("%.3f",result)
             }
-        } else{
-            ratio=summatch[xvar,ifelse(treat,1,2)]
-            result=paste0(round(ifelse(treat,ntreat,ncontrol)*ratio)," (",sprintf(form2,ratio*100),"%)")
+            p=c(p,result)
+            ratio=summatch[xvar,1]
+            treat=c(treat,paste0(sprintf(form1,ntreat*ratio)," (",sprintf(form2,ratio*100),"%)"))
+            ratio=summatch[xvar,2]
+            control=c(control,paste0(sprintf(form1,ncontrol*ratio)," (",sprintf(form2,ratio*100),"%)"))
         }
     }
-    result
+    df=data.frame(treat=treat,control=control,p=p,stringsAsFactors = FALSE)
+    df
+
 }
 
 

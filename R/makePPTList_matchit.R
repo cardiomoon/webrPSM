@@ -65,6 +65,24 @@ ggPSMSummary=function(x,show.table=TRUE,xpos=NULL,ypos=NULL){
 
 }
 
+#' Make p format
+#' @param x string
+#' @param digits numeric
+#' @export
+#'@examples
+#'x=c("0.000","0.123","","0.34")
+#'pformat(x)
+pformat=function(x,digits=3){
+     for(i in seq_along(x)){
+         if(is.na(as.numeric(x[i]))) {
+           next
+         } else if(as.numeric(x[i])<10^(-digits)){
+            x[i]=paste0("< 0.",paste0(rep("0",digits-1),collapse=""),"1")
+         }
+     }
+     x
+}
+
 #'Make flextable summarizing propensity score matching
 #' @param x An object of class matchit
 #' @param digitsstd integer indicating the number of decimal places
@@ -78,12 +96,12 @@ ggPSMSummary=function(x,show.table=TRUE,xpos=NULL,ypos=NULL){
 #' @examples
 #' require(MatchIt)
 #' formula=treat ~ age + educ + race+married+nodegree + re74 + re75
-#' x=matchit(formula, data =lalonde, method= "full")
+#' x=matchit(formula, data =lalonde, method= "full",link="probit")
 #' PSMTable(x,grouplabel=c("Control","Treated"))
 #' x=matchit(formula, data =lalonde, method= "nearest")
 #' PSMTable(x,grouplabel=c("Control","Treated"))
 PSMTable=function(x,digitsstd=3,grouplabel=NULL){
-          # digitsstd=3;grouplabel=NULL
+            # digitsstd=3;grouplabel=NULL
     xvars=attr(x$model$terms,"term.labels")
     yvar=names(x$model$model)[1]
     data1=x$model$data
@@ -99,12 +117,13 @@ PSMTable=function(x,digitsstd=3,grouplabel=NULL){
     restable
     restable=compress(restable)
     res=list()
-    res[[1]]=round(summary(x)$sum.all[,3],digitsstd)
+    form1=paste0("%.",digitsstd,"f")
+    res[[1]]=sprintf(form1,summary(x)$sum.all[,3])
 
     if(is.null(summary(x)$sum.matched)){
-      res[[2]]=round(summary(x)$sum.across[,3],digitsstd)
+      res[[2]]=sprintf(form1,summary(x)$sum.across[,3])
     } else{
-      res[[2]]=round(summary(x)$sum.matched[,3],digitsstd)
+      res[[2]]=sprintf(form1,summary(x)$sum.matched[,3])
     }
 
     res[[1]]=res[[1]][-1]
@@ -136,20 +155,17 @@ PSMTable=function(x,digitsstd=3,grouplabel=NULL){
 
     df=cbind(df[[1]],df[[2]])
     df[[6]]<-""
-    df
+    df[[4]]<-pformat(df[[4]])
+    df[[9]]<-pformat(df[[9]])
 
     weighted=FALSE
     if(length(unique(match.data(x)$weights))>1){
-      control<-treat<-p<-c()
 
-      for(i in seq_along(xvars)){
-        control<-c(control,getWeightedValues(x,xvars[i],treat=0))
-        treat<-c(treat,getWeightedValues(x,xvars[i],treat=1))
-        p<-c(p,getWeightedValues(x,xvars[i],treat=2))
-      }
-      df[[7]]=control
-      df[[8]]=treat
-      df[[9]]=p
+        result=getWeightedValues(x)
+
+      df[[7]]=result$control
+      df[[8]]=result$treat
+      df[[9]]=result$p
       weighted=TRUE
     }
 
@@ -180,7 +196,8 @@ PSMTable=function(x,digitsstd=3,grouplabel=NULL){
         hline(i=1,j=2:5,border=small_border,part="header") %>%
         hline(i=1,j=7:10,border=small_border,part="header") %>%
         align(align="center",part="header") %>%
-        align(j=1,align="center",part="body") %>%
+        align(align="right",part="body") %>%
+        align(j=1,align="left",part="body") %>%
         merge_at(i=1:2,j=1,part="header") %>%
         merge_at(i=2:3,j=4,part="header") %>%
         merge_at(i=2:3,j=5,part="header") %>%
@@ -195,8 +212,8 @@ PSMTable=function(x,digitsstd=3,grouplabel=NULL){
         width(j=1,width=0.5) %>%
         width(j=2:5,width=1.2) %>%
         width(j=7:10,width=1.2)
-    if(weighted) ft <-footnote(ft,i=1,j=7,
-                               ref_symbols=c("*"),
+    if(weighted) ft <-footnote(ft,i=2,j=7:8,
+                               ref_symbols=c("a"),
                                value=as_paragraph("Values are weighted mean \u00b1 weighted sd or weighted percentages"),
                                part="header",inline=T)
     ft
