@@ -5,6 +5,7 @@
 #' @param dep Name of dependent variable
 #' @param covarCentering logical
 #' @param withinSubclass logical
+#' @param seed numeric
 #' @param digits integer indicating the number of decimal places
 #' @param sedigits digits for standard error
 #' @param pdigits digits for p value
@@ -19,15 +20,16 @@
 #' library(MatchIt)
 #' library(survival)
 #' out <- matchit(A ~ X1 + X2 + X3 + X4 + X5 + X6 + X7 + X8 + X9, data = exData)
+#' estimateEffect2(out,dep="Y_C",multiple=FALSE)
+#' estimateEffect2(out,mode="binary",dep="Y_B",multiple=FALSE)
+#' estimateEffect2(out,mode="binary",dep="Y_B")
+#' estimateEffect2(out,mode="survival",dep="Y_S",multiple=FALSE)
 #' out <- matchit(A ~ X1 + X2 + X3 + X4 + X5 + X6 + X7 + X8 + X9, data = exData,
 #'             link = 'linear.logit', caliper = .1, ratio = 3, replace = TRUE)
 #' estimateEffect2(out,dep="Y_C",multiple=FALSE)
-#' estimateEffect2(out,mode="binary",dep="Y_B",multiple=FALSE)
-#' estimateEffect(out,mode="binary",dep="Y_B",multiple=FALSE)
-#' estimateEffect(out,mode="binary",dep="Y_B")
-#' estimateEffect2(out,mode="binary",dep="Y_B")
+#' estimateEffect2(out,dep="Y_B",mode="binary",multiple=TRUE)
 estimateEffect2=function(out,mode="continuous",multiple=TRUE,dep,
-                         covarCentering=FALSE,withinSubclass=FALSE,
+                         covarCentering=FALSE,withinSubclass=FALSE,seed=1,
                          digits=2,sedigits=2,pdigits=4,se=TRUE,print=TRUE){
 # mode="continuous";multiple=FALSE;dep="Y_C"
 # mode="binary";multiple=TRUE;dep="Y_B"
@@ -40,6 +42,7 @@ yvar=names(out$model$model)[1]
 yvar
 replace=FALSE
 
+set.seed(seed)
 if(is.null(out$info$replace)){
     md=match.data(out)
 } else if(out$info$replace){
@@ -102,7 +105,7 @@ pair_ids=levels(md$subclass)
 
 est_fun<-function(pairs,i,multiple=FALSE,mode="continuous"){
      numreps <- table(pairs[i])
-     ids<-unlist(lapply(pairs[pairs %in% names(numreps)],
+     ids<-unlist(lapply(pair_ids[pair_ids %in% names(numreps)],
                         function(p) rep(which(md$subclass==p),numreps[p])))
 
      md_boot<-md[ids,]
