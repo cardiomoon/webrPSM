@@ -1,3 +1,9 @@
+# webrPSM ver 0.1.2 
+===================
+(2021-Feb-16)
+
+# Add estimateEffect2() function
+
 # webrPSM ver 0.1.1 
 ===================
 (2021-Feb-10)

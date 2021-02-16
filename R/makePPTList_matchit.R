@@ -449,7 +449,7 @@ makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
 
      title=c(title,"Summary of Propensity Score Matching")
      type=c(type,"ggplot")
-     code=c(code,"cobalt::bal.plot(out,var.name='distance',which='both',type='histogram',mirror=TRUE)")
+     code=c(code,"cobalt::bal.plot(matched,var.name='distance',which='both',type='histogram',mirror=TRUE)")
 
 
      if(compare & (matchMethod!="nearest")){
