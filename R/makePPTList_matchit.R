@@ -16,12 +16,13 @@
 ggPSMSummary=function(x,show.table=TRUE,xpos=NULL,ypos=NULL){
 
      # show.table=TRUE;xpos=NULL;ypos=NULL
-     xvars=attr(x$model$terms,"term.labels")
-     yvar=names(x$model$model)[1]
-     data1=x$model$data
-     data2=match.data(x)
-     summary(x)
-     summary(x)$sum.across
+     # xvars=attr(x$model$terms,"term.labels")
+     # yvar=names(x$model$model)[1]
+     #
+     # data1=x$model$data
+     # data2=match.data(x)
+     # summary(x)
+     # summary(x)$sum.across
      # str(summary(x))
 
      res=summary(x)$sum.all[,3]
@@ -101,11 +102,20 @@ pformat=function(x,digits=3){
 #' x=matchit(formula, data =lalonde, method= "nearest")
 #' PSMTable(x,grouplabel=c("Control","Treated"))
 PSMTable=function(x,digitsstd=3,grouplabel=NULL){
-            # digitsstd=3;grouplabel=NULL
-    xvars=attr(x$model$terms,"term.labels")
-    yvar=names(x$model$model)[1]
+
+    # digitsstd=3;grouplabel=NULL
+    temp1=formula2vars(x$formula)
+    xvars=temp1$xvars
+    yvar=temp1$yvar
+
     data1=x$model$data
+
+    if(is.null(data1)) {
+      result=call2param(x$call)
+      data1=eval(parse(text=result$data))
+    }
     data2=match.data(x)[1:ncol(data1)]
+    data2
 
     data1$matchGroup="Before"
     data2$matchGroup="After"
@@ -125,9 +135,10 @@ PSMTable=function(x,digitsstd=3,grouplabel=NULL){
     } else{
       res[[2]]=sprintf(form1,summary(x)$sum.matched[,3])
     }
-
+    if(rownames(summary(x)$sum.all)[1]=="distance"){
     res[[1]]=res[[1]][-1]
     res[[2]]=res[[2]][-1]
+    }
     start=1
     restable[[1]]$res
     end=ncol(restable[[1]]$res)-7
@@ -157,7 +168,7 @@ PSMTable=function(x,digitsstd=3,grouplabel=NULL){
     df[[6]]<-""
     df[[4]]<-pformat(df[[4]])
     df[[9]]<-pformat(df[[9]])
-
+    df
     weighted=FALSE
     if(length(unique(match.data(x)$weights))>1){
 
@@ -304,6 +315,22 @@ call2param=function(call){
     result
 }
 
+
+#' Extract variable names with formula
+#' @param formula An object of class formula
+#' @export
+#' @examples
+#'formula = treat ~ age + educ + race + married+nodegree + re74 + re75
+#'formula2vars(formula)
+formula2vars=function(formula){
+    temp=deparse(formula)
+    temp=gsub(" ","",temp)
+    temp=unlist(strsplit(temp,"~"))
+    yvar=temp[1]
+    xvars=unlist(strsplit(temp[2],"+",fixed=TRUE))
+    list(yvar=yvar,xvars=xvars)
+}
+
 #' make pptList with an object of class matchit
 #' @param x An object of class matchit
 #' @param depvar Variable name serves as dependent variables
@@ -324,14 +351,18 @@ call2param=function(call){
 #'    method="subclass",subclass=4)
 #' x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
 #'    method="full",link='probit')
+#' x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
+#'    method="exact")
 #' result=makePPTList_matchit(x)
 #' result=makePPTList_matchit(x,depvar="re78")
 makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
                              multiple=TRUE, depKind="continuous",
                              covarCentering=FALSE,withinSubclass=FALSE){
-    # depvar=NULL;compare=TRUE;report=TRUE
-    # multiple=TRUE; depKind="continuous"
-    # covarCentering=FALSE;withinSubclass=FALSE
+     # depvar=NULL;compare=TRUE;report=TRUE
+     # multiple=TRUE; depKind="continuous"
+     # covarCentering=FALSE;withinSubclass=FALSE
+
+     `%!in%` <- Negate(`%in%`)
 
      if("character" %in% class(x)) {
          matched=eval(parse(text=x))
@@ -361,9 +392,10 @@ makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
      eq=temp[2]
      df=matched$model$data
      dfname=temp[3]
-     xvars=attr(matched$model$terms,"term.labels")
-     yvar=names(matched$model$model)[1]
-     yvar
+
+     temp1=formula2vars(matched$formula)
+     xvars=temp1$xvars
+     yvar=temp1$yvar
 
      count=length(xvars)
 
@@ -404,16 +436,19 @@ makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
        code=c(code,temp)
      }
 
+     if(matchMethod %!in% c("exact","cem")){
      title=c(title,"Covariates vs. Propensity Score")
      type=c(type,"ggplot")
      temp=paste0("ggPS(matched)")
      code=c(code,temp)
+     }
 
      title=c(title,"Change of Absolute Standardised Differences")
      type=c(type,"ggplot")
      temp=paste0("ggPSMSummary(matched)")
      code=c(code,temp)
 
+     if(matchMethod %!in% c("exact","cem")){
      title=c(title,"Distribution of Propensity Score")
      type=c(type,"plot")
      temp=paste0("plot(matched,type='jitter',col='blue',interactive=FALSE)")
@@ -423,6 +458,7 @@ makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
      type=c(type,"plot")
      temp=paste0("plot(matched,type='hist',interactive=FALSE)")
      code=c(code,temp)
+     }
 
      title=c(title,"Matched data")
      type=c(type,"Rcode")
@@ -447,10 +483,11 @@ makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
      temp=paste0("PSMTable(matched)")
      code=c(code,temp)
 
+     if(matchMethod %!in% c("exact","cem")){
      title=c(title,"Summary of Propensity Score Matching")
      type=c(type,"ggplot")
      code=c(code,"cobalt::bal.plot(matched,var.name='distance',which='both',type='histogram',mirror=TRUE)")
-
+     }
 
      if(compare & (matchMethod!="nearest")){
        title=c(title,"Balance Table")

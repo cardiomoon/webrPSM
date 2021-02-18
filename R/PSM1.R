@@ -93,8 +93,10 @@ reportSMD=function(out){
 reportPSM=function(out,depvar="",compare=NULL){
         # depvar="re78"; compare=NULL
 
-    xvars=attr(out$model$terms,"term.labels")
-    yvar=names(out$model$model)[1]
+  temp1=formula2vars(out$formula)
+  xvars=temp1$xvars
+  yvar=temp1$yvar
+
     xvars
     length(xvars)
     yvar
@@ -200,10 +202,12 @@ reportPSM=function(out,depvar="",compare=NULL){
 #'out=matchit(formula, data =lalonde, method= "full",link="probit")
 #'makeCompareBalTab(out)
 makeCompareBalTab=function(out,print=TRUE){
-  out1=MatchIt::matchit(out$formula,data=out$model$data)
+  result=call2param(out$call)
+  data1<-eval(parse(text=result$data))
+  out1=matchit(out$formula,data=data1)
   weights=list(full=out,nn=out1)
   names(weights)[1]=out$info$method
-  res=cobalt::bal.tab(out$formula,data=out$model$data,un=TRUE,weights=weights)
+  res=cobalt::bal.tab(out$formula,data=data1,un=TRUE,weights=weights)
   if(print){
   cat("Balance Meausures\n")
   cat("-----------------\n")
@@ -229,8 +233,9 @@ makeCompareBalTab=function(out,print=TRUE){
 #'compareLove.plot(out)
 #'compareLove.plot(out,stats=c("m","ks"))
 compareLove.plot=function(out,stats=c("m")){
-
-  out1=MatchIt::matchit(out$formula,data=out$model$data)
+  result=call2param(out$call)
+  data1<-eval(parse(text=result$data))
+  out1=MatchIt::matchit(out$formula,data=data1)
   sample.names = c("Full Matching", "NN Matching", "Original")
   cobalt::love.plot(out, stats = stats, poly = 2, abs = TRUE,
             weights = list(nn = out1),

@@ -47,8 +47,13 @@ weighted.var=function (x, weights = NULL, normwt = FALSE, na.rm = TRUE,
 #' x=matchit(formula, data =lalonde, method= "full",link="probit")
 #' getWeightedValues(x)
 getWeightedValues=function(x,digits=1){
-    xvars=attr(x$model$terms,"term.labels")
-    yvar=names(x$model$model)[1]
+  temp1=formula2vars(x$formula)
+  xvars=temp1$xvars
+  yvar=temp1$yvar
+    result=call2param(x$call)
+
+    orgData=eval(parse(text=result$data))
+    orgData
     df1=match.data(x)
 
    if(x$info$method=="subclass"){
@@ -70,9 +75,10 @@ getWeightedValues=function(x,digits=1){
 
     for(i in seq_along(xvars)){
         xvar=xvars[i]
+        xvar
         temp=df1[[xvar]]
 
-        if(is.numeric(temp) & length(unique(temp))>2) {
+        if(is.numeric(temp) & length(unique(orgData[[xvar]]))>2) {
 
             control=c(control,paste0(sprintf(form1,weighted.mean(data1[[xvar]],data1$weights))," \u00b1 ",
                                      sprintf(form1,sqrt(weighted.var(data1[[xvar]],data1$weights)))))
@@ -82,19 +88,27 @@ getWeightedValues=function(x,digits=1){
 
             formula=as.formula(paste0(xvar,"~",yvar))
             result=summary(lm(formula,data=df1,weights=weights))$coef[2,4]
+            if(is.nan(result)){
+              result="1.000"
+            } else{
             if(result<0.001) {
                 result="< 0.001"
             }else{
                 result=sprintf("%.3f",result)
             }
+            }
             p=c(p,result)
         } else if(is.numeric(temp)){
+            if(length(unique(temp))>1){
             formula=as.formula(paste0("~",xvar,"+",yvar))
             result=svychisq(formula,design=svydesign(ids=~1,weights=~weights,data=df1))$p.value
             if(result<0.001) {
                 result="< 0.001"
             }else{
                 result=sprintf("%.3f",result)
+            }
+            } else{
+                result="1.000"
             }
             p=c(p,result)
             ratio=summatch[xvar,1]
@@ -103,7 +117,7 @@ getWeightedValues=function(x,digits=1){
             control=c(control,paste0(sprintf(form1,ncontrol*ratio)," (",sprintf(form2,ratio*100),"%)"))
 
         } else if(length(unique(temp))>2){
-            xvalues=sort(unique(df1[[xvar]]))
+            xvalues=sort(unique(orgData[[xvar]]))
             formula=as.formula(paste0("~",xvar,"+",yvar))
             result=svychisq(formula,design=svydesign(ids=~1,weights=~weights,data=df1))$p.value
             if(result<0.001) {
@@ -125,6 +139,22 @@ getWeightedValues=function(x,digits=1){
                 result=c(result,paste0(sprintf(form1,ncontrol*ratio)," (",sprintf(form2,ratio*100),"%)"))
             }
             control=c(control,result)
+        } else if(length(unique(temp))==1){
+          xvalues=sort(unique(orgData[[xvar]]))
+          p=c(p,"1.000",rep("",length(xvalues)))
+          result=""
+          for(j in seq_along(xvalues)){
+            ratio=summatch[paste0(xvar,xvalues[j]),1]
+            result=c(result,paste0(sprintf(form1,ntreat*ratio)," (",sprintf(form2,ratio*100),"%)"))
+          }
+          treat=c(treat,result)
+          result=""
+          for(j in seq_along(xvalues)){
+            ratio=summatch[paste0(xvar,xvalues[j]),2]
+            result=c(result,paste0(sprintf(form1,ncontrol*ratio)," (",sprintf(form2,ratio*100),"%)"))
+          }
+          control=c(control,result)
+
         } else{
             formula=as.formula(paste0("~",xvar,"+",yvar))
             result=svychisq(formula,design=svydesign(ids=~1,weights=~weights,data=df1))$p.value

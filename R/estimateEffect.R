@@ -59,17 +59,23 @@ utils::globalVariables(c("id", "subclass"))
 #' out=matchit(A ~ X1 + X2 + X3 + X4 + X5 + X6 + X7 + X8 + X9, data = swData,
 #' method = "full", estimand = "ATE",s.weights="SW")
 #' estimateEffect(out,dep=c("Y_C"))
+#' x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
+#'    method="exact")
+#' estimateEffect(x,dep=c("re78"))
 estimateEffect=function(out,mode="continuous",multiple=TRUE,dep,
                         covarCentering=FALSE,withinSubclass=FALSE,
                         digits=2,sedigits=2,pdigits=4,se=TRUE,print=TRUE){
 
   # mode="continuous";multiple=FALSE;dep="Y_C"
-  # covarCentering=FALSE;withinSubclass=TRUE
-  # digits=2;sedigits=2;pdigits=4;se=TRUE
+  # mode="continuous";multiple=TRUE;dep="re78"
+  # covarCentering=FALSE;withinSubclass=FALSE
+  # digits=2;sedigits=2;pdigits=4;se=TRUE;print=TRUE
 
-  xvars=attr(out$model$terms,"term.labels")
-  yvar=names(out$model$model)[1]
+  temp1=formula2vars(out$formula)
+  xvars=temp1$xvars
+  yvar=temp1$yvar
   replace=FALSE
+  deselect=c()
 
 
   if(is.null(out$info$replace)){
@@ -81,61 +87,7 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep,
     md=match.data(out)
   }
 
-  report=""
-  if(out$info$method=="subclass"){
-      report="To estimate marginal effects after stratum matching, marginal mean weighting through stratification(MMWS) was used. "
-  }
-  report=paste0(report,"To estimate the '",yvar,"' effect and its standard error")
-  if(!is.null(out$s.weights)){
-      report=paste0(report," in the matched and sampling weighted sample")
-  }
-  report=paste0(report,", we fit ")
-  if(mode=="continuous") {
-    report=paste0(report,"a linear regression model ")
-  } else if(mode=="binary"){
-    report=paste0(report,"a weighted generalized linear regression model ")
-  } else{  # "survival"
-    report=paste0(report,"a Cox proprotional harzards model ")
-  }
-  report=paste0(report,"with ",descNames(dep)," as the outcome and the '",yvar,"' ")
-  if(multiple) {
-    report=paste0(report,"and the covariates as additive predictors ")
-  } else{
-    report=paste0(report,"as a predictor ")
-  }
-  report=paste0(report,"and included the matching weights in the estimation. ",
-                "The coefficient on the '",yvar,"' was taken to be the estimate of the '",yvar,"' effect. ")
-  if(mode=="continuous") {
-    report=paste0(report,"The lm() function was used to estimate the effect, ")
-  } else if(mode=="binary") {
-    report=paste0(report,"The glm() function with a logit link function was used to estimate the marginal odds ratio, ")
-  } else{
-    report=paste0(report,"The coxph() function in the survival package was used to estimate the marginal harzard ratio, ")
-  }
-  if(out$info$method=="subclass"){
-    if(mode=="survival"){
-      report=paste0(report,
-                    "and a regular robust standard error was used because of the MMWS weights. ")
-    } else{
-       report=paste0(report,
-                  "and a regular robust standard error as implemented in the vcovHC() function in the sandwich package was used",
-                  " to estimate its standard error. ")
-    }
-    if(withinSubclass){
-      report=paste0(report,
-                    "The within-subclass effects was estimated as the result of marginal effects procedure as "
-                    ,"implemented in the margins() function in the marigins package. ")
-    }
 
-  } else{
-     if(mode=="survival" & !is.null(out$info$replace)){
-       report=paste0(report,"and the Austin and Cafri's(2020) SE estimator was used to estimate robust standard error. ")
-     } else{
-     report=paste0(report,
-                "and a cluster-robust variance as implemented in the vcovCL() function in the sandwich package was used",
-                " to estimate its standard error with matching stratum membership as the clustering variable. ")
-     }
-  }
   if(covarCentering){
     md[xvars]<-scale(md[xvars],scale=FALSE)
   }
@@ -150,7 +102,18 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep,
     if(covarCentering){
       temp=paste0(temp,"*(",paste0(xvars,collapse="+"),")")
     } else if(multiple){
-      temp=paste0(temp,"+",paste0(xvars,collapse="+"))
+
+      for(j in seq_along(xvars)){
+          if((length(unique(md[[xvars[j]]]))==1)&(!is.numeric(md[[xvars[j]]]))){
+             deselect=c(deselect,j)
+          }
+      }
+      if(length(deselect)>0) {
+        xvars1=xvars[-deselect]
+      } else{
+        xvars1=xvars
+      }
+      temp=paste0(temp,"+",paste0(xvars1,collapse="+"))
     }
     if(withinSubclass & out$info$method=="subclass"){
       temp=paste0(dep[i],"~ subclass + subclass:",yvar,"-1")
@@ -235,7 +198,67 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep,
     class(result)="data.frame"
   }
   rownames(result)=dep
+  report=""
+  if(out$info$method=="subclass"){
+    report="To estimate marginal effects after stratum matching, marginal mean weighting through stratification(MMWS) was used. "
+  }
+  report=paste0(report,"To estimate the '",yvar,"' effect and its standard error")
+  if(!is.null(out$s.weights)){
+    report=paste0(report," in the matched and sampling weighted sample")
+  }
+  report=paste0(report,", we fit ")
+  if(mode=="continuous") {
+    report=paste0(report,"a linear regression model ")
+  } else if(mode=="binary"){
+    report=paste0(report,"a weighted generalized linear regression model ")
+  } else{  # "survival"
+    report=paste0(report,"a Cox proprotional harzards model ")
+  }
+  report=paste0(report,"with ",descNames(dep)," as the outcome and the '",yvar,"' ")
+  if(multiple) {
+    report=paste0(report,"and the covariates ")
+    if(length(deselect)>0) {
+      report=paste0(report,descNames(xvars[-deselect])," ")
+    } else{
+      report=paste0(report,descNames(xvars)," ")
+    }
+    report=paste0(report,"as additive predictors ")
+  } else{
+    report=paste0(report,"as a predictor ")
+  }
+  report=paste0(report,"and included the matching weights in the estimation. ",
+                "The coefficient on the '",yvar,"' was taken to be the estimate of the '",yvar,"' effect. ")
+  if(mode=="continuous") {
+    report=paste0(report,"The lm() function was used to estimate the effect, ")
+  } else if(mode=="binary") {
+    report=paste0(report,"The glm() function with a logit link function was used to estimate the marginal odds ratio, ")
+  } else{
+    report=paste0(report,"The coxph() function in the survival package was used to estimate the marginal harzard ratio, ")
+  }
+  if(out$info$method=="subclass"){
+    if(mode=="survival"){
+      report=paste0(report,
+                    "and a regular robust standard error was used because of the MMWS weights. ")
+    } else{
+      report=paste0(report,
+                    "and a regular robust standard error as implemented in the vcovHC() function in the sandwich package was used",
+                    " to estimate its standard error. ")
+    }
+    if(withinSubclass){
+      report=paste0(report,
+                    "The within-subclass effects was estimated as the result of marginal effects procedure as "
+                    ,"implemented in the margins() function in the marigins package. ")
+    }
 
+  } else{
+    if(mode=="survival" & !is.null(out$info$replace)){
+      report=paste0(report,"and the Austin and Cafri's(2020) SE estimator was used to estimate robust standard error. ")
+    } else{
+      report=paste0(report,
+                    "and a cluster-robust variance as implemented in the vcovCL() function in the sandwich package was used",
+                    " to estimate its standard error with matching stratum membership as the clustering variable. ")
+    }
+  }
   for(i in 1:nrow(result)){
     x=result[i,]
     if(mode=="continuous"){

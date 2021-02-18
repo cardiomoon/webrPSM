@@ -83,4 +83,7 @@ estimateEffect(out,mode="continuous",dep=c("Y_B"))  # for conditional effect
 out=matchit(A ~ X1 + X2 + X3 + X4 + X5 + X6 + X7 + X8 + X9, data = swData,
 method = "full", estimand = "ATE",s.weights="SW")
 estimateEffect(out,dep=c("Y_C"))
+x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
+   method="exact")
+estimateEffect(x,dep=c("re78"))
 }
