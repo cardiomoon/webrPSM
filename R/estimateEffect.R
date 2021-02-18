@@ -87,9 +87,17 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep,
     md=match.data(out)
   }
 
+  myCentering=function(x){
+    if(is.numeric(x)){
+      scale(x,scale=FALSE)
+    } else{
+      x
+    }
+  }
+
 
   if(covarCentering){
-    md[xvars]<-scale(md[xvars],scale=FALSE)
+    md[xvars]<-lapply(md[xvars],myCentering)
   }
 
   for(i in seq_along(dep)){
