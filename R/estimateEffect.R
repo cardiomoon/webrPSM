@@ -45,6 +45,7 @@ utils::globalVariables(c("id", "subclass"))
 #' estimateEffect(out,dep=c("Y_C"),covarCentering=TRUE)
 #' estimateEffect(out,mode="binary",dep=c("Y_B"),multiple=FALSE)
 #' estimateEffect(out,mode="survival",dep=c("Y_S"),multiple=FALSE)
+#'\dontrun{
 #' out=matchit(A ~ X1 + X2 + X3 + X4 + X5 + X6 + X7 + X8 + X9, data = exData,
 #' method = "subclass", estimand = "ATT",subclass = 8)
 #' estimateEffect(out,dep=c("Y_C"),multiple=FALSE)
@@ -62,6 +63,7 @@ utils::globalVariables(c("id", "subclass"))
 #' x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
 #'    method="exact")
 #' estimateEffect(x,dep=c("re78"))
+#' }
 estimateEffect=function(out,mode="continuous",multiple=TRUE,dep,
                         covarCentering=FALSE,withinSubclass=FALSE,
                         digits=2,sedigits=2,pdigits=4,se=TRUE,print=TRUE){

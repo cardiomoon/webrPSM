@@ -52,6 +52,7 @@ library(MatchIt)
 library(survival)
 out <- matchit(A ~ X1 + X2 + X3 + X4 + X5 + X6 + X7 + X8 + X9, data = exData)
 estimateEffect2(out,dep="Y_C",multiple=FALSE)
+\dontrun{
 estimateEffect2(out,mode="binary",dep="Y_B",multiple=FALSE)
 estimateEffect2(out,mode="binary",dep="Y_B")
 estimateEffect2(out,mode="survival",dep="Y_S",multiple=FALSE)
@@ -59,4 +60,5 @@ out <- matchit(A ~ X1 + X2 + X3 + X4 + X5 + X6 + X7 + X8 + X9, data = exData,
             link = 'linear.logit', caliper = .1, ratio = 3, replace = TRUE)
 estimateEffect2(out,dep="Y_C",multiple=FALSE)
 estimateEffect2(out,dep="Y_B",mode="binary",multiple=TRUE)
+}
 }

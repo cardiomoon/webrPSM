@@ -350,9 +350,9 @@ formula2vars=function(formula){
 #' x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
 #'    method="subclass",subclass=4)
 #' x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
-#'    method="full",link='probit')
-#' x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
 #'    method="exact")
+#' x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
+#'    method="full",link='probit')
 #' result=makePPTList_matchit(x)
 #' result=makePPTList_matchit(x,depvar="re78")
 makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
