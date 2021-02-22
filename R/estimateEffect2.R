@@ -22,7 +22,6 @@
 #' out <- matchit(A ~ X1 + X2 + X3 + X4 + X5 + X6 + X7 + X8 + X9, data = exData)
 #' \dontrun{
 #' estimateEffect2(out,dep="Y_C",multiple=FALSE)
-#' \dontrun{
 #' estimateEffect2(out,mode="binary",dep="Y_B",multiple=FALSE)
 #' estimateEffect2(out,mode="binary",dep="Y_B")
 #' estimateEffect2(out,mode="survival",dep="Y_S",multiple=FALSE)
@@ -39,9 +38,11 @@ estimateEffect2=function(out,mode="continuous",multiple=TRUE,dep,
 # mode="survival";multiple=FALSE;dep="Y_S"
 # covarCentering=FALSE;withinSubclass=TRUE
 # digits=2;sedigits=2;pdigits=4;se=TRUE
-
-xvars=attr(out$model$terms,"term.labels")
-yvar=names(out$model$model)[1]
+    temp1=formula2vars(out$formula)
+    xvars=temp1$xvars
+    yvar=temp1$yvar
+# xvars=attr(out$model$terms,"term.labels")
+# yvar=names(out$model$model)[1]
 yvar
 replace=FALSE
 
