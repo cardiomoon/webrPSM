@@ -247,9 +247,12 @@ PSMTable=function(x,digitsstd=3,grouplabel=NULL){
 #' ggPS(x,xlabs=c("control","treated"))+theme(legend.position=c(0.8,0.15))
 ggPS=function(x,xlabs=NULL,ncol=2){
       # xlabs=NULL;ncol=2
-     xvars=attr(x$model$terms,"term.labels")
-     yvar=names(x$model$model)[1]
-     yvar
+     temp1=formula2vars(x$formula)
+     xvars=temp1$xvars
+     yvar=temp1$yvar
+     # xvars=attr(x$model$terms,"term.labels")
+     # yvar=names(x$model$model)[1]
+     # yvar
      dta_m=match.data(x)
      dta_m
      if(!is.factor(dta_m[[yvar]])) {
@@ -327,13 +330,15 @@ formula2vars=function(formula){
     temp=gsub(" ","",temp)
     temp=unlist(strsplit(temp,"~"))
     yvar=temp[1]
-    xvars=unlist(strsplit(temp[2],"+",fixed=TRUE))
+    # xvars=unlist(strsplit(temp[2],"+",fixed=TRUE))
+    xvars=unique(unlist(strsplit(temp[2],"[+]|[*]|:")))
     list(yvar=yvar,xvars=xvars)
 }
 
 #' make pptList with an object of class matchit
 #' @param x An object of class matchit
 #' @param depvar Variable name serves as dependent variables
+#' @param seed Integer
 #' @param compare logical
 #' @param report logical
 #' @param multiple logical
@@ -355,10 +360,10 @@ formula2vars=function(formula){
 #'    method="exact")
 #' result=makePPTList_matchit(x)
 #' result=makePPTList_matchit(x,depvar="re78")
-makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
+makePPTList_matchit=function(x,depvar=NULL,seed=1234,compare=TRUE,report=TRUE,
                              multiple=TRUE, depKind="continuous",
                              covarCentering=FALSE,withinSubclass=FALSE){
-     # depvar=NULL;compare=TRUE;report=TRUE
+     # depvar=NULL;seed=1234;compare=TRUE;report=TRUE
      # multiple=TRUE; depKind="continuous"
      # covarCentering=FALSE;withinSubclass=FALSE
 
@@ -401,10 +406,14 @@ makePPTList_matchit=function(x,depvar=NULL,compare=TRUE,report=TRUE,
 
      title<-type<-code<-c()
 
-     title="Check Initial Imbalance"
+     title="Set Seed Number"
      type="Rcode"
-     temp=paste0("out<-matchit(",yvar,"~",paste0(xvars,collapse="+"),",data=",dfname,",method=NULL,distance='glm')\nsummary(out)")
-     code=temp
+     code=paste0("set.seed(",seed,")")
+
+     title=c(title,"Check Initial Imbalance")
+     type=c(type,"Rcode")
+     temp=paste0("out<-matchit(",deparse(x$formula),",data=",dfname,",method=NULL,distance='glm')\nsummary(out)")
+     code=c(code,temp)
 
 
      # title=c(title,"Chi-square test before matching")

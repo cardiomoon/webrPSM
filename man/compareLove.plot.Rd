@@ -15,6 +15,7 @@ compareLove.plot(out, stats = c("m"))
 Drow love plot comparing to nearest match
 }
 \examples{
+library(cobalt)
 data(lalonde,package="MatchIt")
 formula=treat ~ age + educ + race+ married +nodegree + re74 + re75
 out=MatchIt::matchit(formula, data =lalonde, method= "full",link="probit")

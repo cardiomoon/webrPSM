@@ -20,6 +20,7 @@
 #' library(MatchIt)
 #' library(survival)
 #' out <- matchit(A ~ X1 + X2 + X3 + X4 + X5 + X6 + X7 + X8 + X9, data = exData)
+#' \dontrun{
 #' estimateEffect2(out,dep="Y_C",multiple=FALSE)
 #' estimateEffect2(out,mode="binary",dep="Y_B",multiple=FALSE)
 #' estimateEffect2(out,mode="binary",dep="Y_B")
@@ -28,6 +29,7 @@
 #'             link = 'linear.logit', caliper = .1, ratio = 3, replace = TRUE)
 #' estimateEffect2(out,dep="Y_C",multiple=FALSE)
 #' estimateEffect2(out,dep="Y_B",mode="binary",multiple=TRUE)
+#' }
 estimateEffect2=function(out,mode="continuous",multiple=TRUE,dep,
                          covarCentering=FALSE,withinSubclass=FALSE,seed=1,
                          digits=2,sedigits=2,pdigits=4,se=TRUE,print=TRUE){

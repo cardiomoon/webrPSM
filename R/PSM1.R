@@ -198,6 +198,7 @@ reportPSM=function(out,depvar="",compare=NULL){
 #'@export
 #'@examples
 #'library(MatchIt)
+#'library(cobalt)
 #'formula=treat ~ age + educ + race+ married +nodegree + re74 + re75
 #'out=matchit(formula, data =lalonde, method= "full",link="probit")
 #'makeCompareBalTab(out)
@@ -211,7 +212,7 @@ makeCompareBalTab=function(out,print=TRUE){
   if(print){
   cat("Balance Meausures\n")
   cat("-----------------\n")
-  print(res$Balance[c(1,2,4,6)])
+  print(res$Balance)
   cat("\nEffective sample sizes\n")
   cat("----------------------\n")
   print(res$Observations)
@@ -227,6 +228,7 @@ makeCompareBalTab=function(out,print=TRUE){
 #'@importFrom stringr str_to_title
 #'@export
 #'@examples
+#'library(cobalt)
 #'data(lalonde,package="MatchIt")
 #'formula=treat ~ age + educ + race+ married +nodegree + re74 + re75
 #'out=MatchIt::matchit(formula, data =lalonde, method= "full",link="probit")

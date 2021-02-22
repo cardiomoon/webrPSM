@@ -16,6 +16,7 @@ Make balance table
 }
 \examples{
 library(MatchIt)
+library(cobalt)
 formula=treat ~ age + educ + race+ married +nodegree + re74 + re75
 out=matchit(formula, data =lalonde, method= "full",link="probit")
 makeCompareBalTab(out)

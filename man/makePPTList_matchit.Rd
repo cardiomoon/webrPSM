@@ -7,6 +7,7 @@
 makePPTList_matchit(
   x,
   depvar = NULL,
+  seed = 1234,
   compare = TRUE,
   report = TRUE,
   multiple = TRUE,
@@ -19,6 +20,8 @@ makePPTList_matchit(
 \item{x}{An object of class matchit}
 
 \item{depvar}{Variable name serves as dependent variables}
+
+\item{seed}{Integer}
 
 \item{compare}{logical}
 

@@ -55,6 +55,7 @@ estimateEffect(out,mode="binary",dep=c("Y_B"),multiple=FALSE)
 estimateEffect(out,mode="binary",dep=c("Y_B"))
 estimateEffect(out,mode="survival",dep=c("Y_S"),multiple=FALSE)
 estimateEffect(out,mode="survival",dep=c("Y_S"))
+\dontrun{
 out=matchit(A ~ X1 + X2 + X3 + X4 + X5 + X6 + X7 + X8 + X9, data = exData,
    link = 'linear.logit', caliper = .1, ratio = 3, replace = TRUE)
 estimateEffect(out,dep=c("Y_C"),multiple=FALSE)
@@ -86,4 +87,5 @@ estimateEffect(out,dep=c("Y_C"))
 x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
    method="exact")
 estimateEffect(x,dep=c("re78"))
+}
 }

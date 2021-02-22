@@ -1,14 +1,19 @@
+# webrPSM ver 0.1.4
+===================
+
+* Update of formula2vars(), ggPS() and makePPTList_matchit() to support matching with interaction term
+
 # webrPSM ver 0.1.3 
 ===================
 (2021-Feb-18)
 
-# Bug-fixed in makePPTList_matchit()
+* Bug-fixed in makePPTList_matchit()
 
 # webrPSM ver 0.1.2 
 ===================
 (2021-Feb-16)
 
-# Add estimateEffect2() function
+* Add estimateEffect2() function
 
 # webrPSM ver 0.1.1 
 ===================
