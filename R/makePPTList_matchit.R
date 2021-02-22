@@ -412,7 +412,7 @@ makePPTList_matchit=function(x,depvar=NULL,seed=1234,compare=TRUE,report=TRUE,
 
      title=c(title,"Check Initial Imbalance")
      type=c(type,"Rcode")
-     temp=paste0("out<-matchit(",deparse(x$formula),",data=",dfname,",method=NULL,distance='glm')\nsummary(out)")
+     temp=paste0("out<-matchit(",deparse(matched$formula),",data=",dfname,",method=NULL,distance='glm')\nsummary(out)")
      code=c(code,temp)
 
 
