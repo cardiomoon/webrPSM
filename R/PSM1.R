@@ -192,7 +192,6 @@ reportPSM=function(out,depvar="",compare=NULL){
 
 #'Make balance table
 #'@param out An object of a class matchit
-#'@param print logical
 #'@importFrom cobalt bal.tab
 #'@importFrom MatchIt matchit
 #'@export
@@ -202,22 +201,14 @@ reportPSM=function(out,depvar="",compare=NULL){
 #'formula=treat ~ age + educ + race+ married +nodegree + re74 + re75
 #'out=matchit(formula, data =lalonde, method= "full",link="probit")
 #'makeCompareBalTab(out)
-makeCompareBalTab=function(out,print=TRUE){
+makeCompareBalTab=function(out){
   result=call2param(out$call)
   data1<-eval(parse(text=result$data))
   out1=matchit(out$formula,data=data1)
   weights=list(full=out,nn=out1)
   names(weights)[1]=out$info$method
   res=cobalt::bal.tab(out$formula,data=data1,un=TRUE,weights=weights)
-  if(print){
-  cat("Balance Meausures\n")
-  cat("-----------------\n")
-  print(res$Balance)
-  cat("\nEffective sample sizes\n")
-  cat("----------------------\n")
-  print(res$Observations)
-  }
-  invisible(res)
+  res
 }
 
 #'Drow love plot comparing to nearest match

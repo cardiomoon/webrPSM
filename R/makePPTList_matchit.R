@@ -339,6 +339,8 @@ formula2vars=function(formula){
 #' @param x An object of class matchit
 #' @param depvar Variable name serves as dependent variables
 #' @param seed Integer
+#' @param m.threshold numeric The default value is 0.1
+#' @param v.threshold numeric  The default value is 2
 #' @param compare logical
 #' @param report logical
 #' @param multiple logical
@@ -360,7 +362,9 @@ formula2vars=function(formula){
 #'    method="full",link='probit')
 #' result=makePPTList_matchit(x)
 #' result=makePPTList_matchit(x,depvar="re78")
-makePPTList_matchit=function(x,depvar=NULL,seed=1234,compare=TRUE,report=TRUE,
+makePPTList_matchit=function(x,depvar=NULL,seed=1234,
+                             m.threshold=0.1,v.threshold=2,
+                             compare=TRUE,report=TRUE,
                              multiple=TRUE, depKind="continuous",
                              covarCentering=FALSE,withinSubclass=FALSE){
      # depvar=NULL;seed=1234;compare=TRUE;report=TRUE
@@ -477,15 +481,24 @@ makePPTList_matchit=function(x,depvar=NULL,seed=1234,compare=TRUE,report=TRUE,
 
      code=c(code,temp)
 
+     title=c(title,"Balance Table")
+     type=c(type,"Rcode")
+     code=c(code,paste0("options(crayon.enabled=FALSE);bal.tab(matched,thresholds=c(m=",m.threshold,",v=",v.threshold,"))"))
 
-     title=c(title,"Love plot")
-     type=c(type,"plot")
      if(matchMethod=="subclass"){
+         title=c(title,"Love plot")
+         type=c(type,"plot")
          temp=paste0("plot(summary(matched,subclass=TRUE),var.order='unmatched',abs=FALSE)")
+         code=c(code,temp)
      } else{
-          temp=paste0("plot(summary(matched),var.order='unmatched')")
+        title=c(title,"Love plot","Love plot(variance)")
+        type=c(type,"ggplot","ggplot")
+          temp=paste0("love.plot(matched,threshold=",m.threshold,",sample.names=c('Unmatched','matched'),var.order='unadjusted',stars='raw')")
+          code=c(code,temp)
+          temp=paste0("love.plot(matched,stats='variance.ratios',threshold=",v.threshold,",sample.names=c('Unmatched','matched'),var.order='unadjusted')")
+          code=c(code,temp)
      }
-     code=c(code,temp)
+
 
      title=c(title,"Summary of Propensity Score Matching")
      type=c(type,"table")
@@ -499,7 +512,7 @@ makePPTList_matchit=function(x,depvar=NULL,seed=1234,compare=TRUE,report=TRUE,
      }
 
      if(compare & (matchMethod!="nearest")){
-       title=c(title,"Balance Table")
+       title=c(title,"Compare Balance Table")
        type=c(type,"Rcode")
        code=c(code,"makeCompareBalTab(matched)")
        title=c(title,"compare Love Plot")

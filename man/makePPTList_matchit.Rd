@@ -8,6 +8,8 @@ makePPTList_matchit(
   x,
   depvar = NULL,
   seed = 1234,
+  m.threshold = 0.1,
+  v.threshold = 2,
   compare = TRUE,
   report = TRUE,
   multiple = TRUE,
@@ -22,6 +24,10 @@ makePPTList_matchit(
 \item{depvar}{Variable name serves as dependent variables}
 
 \item{seed}{Integer}
+
+\item{m.threshold}{numeric The default value is 0.1}
+
+\item{v.threshold}{numeric  The default value is 2}
 
 \item{compare}{logical}
 
