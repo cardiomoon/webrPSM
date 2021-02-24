@@ -1,5 +1,14 @@
+# webrPSM ver 0.1.5
+====================
+(2021-Feb-24)
+
+* new data simData added
+
+* new function estimateEffectZelig() added
+
 # webrPSM ver 0.1.4
 ===================
+(2021-Feb-22)
 
 * Update of formula2vars(), ggPS() and makePPTList_matchit() to support matching with interaction term
 

@@ -1,7 +1,7 @@
 Package: webrPSM
 Type: Package
 Title: Propensity Score Matching for Web-R
-Version: 0.1.4
+Version: 0.1.5
 Imports:
    MatchIt,
    lmtest,
@@ -20,7 +20,8 @@ Imports:
    survival,
    margins,
    survey,
-   boot
+   boot,
+   Zelig
 Authors@R: person("Keon-Woong", "Moon", email = "cardiomoon@gmail.com",
     role = c("aut", "cre"))
 Description: Several propensity score related functions for the book entitled 

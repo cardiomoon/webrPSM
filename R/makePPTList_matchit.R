@@ -350,7 +350,7 @@ formula2vars=function(formula){
 #' @importFrom lmtest coeftest
 #' @importFrom sandwich vcovCL
 #' @importFrom MatchIt matchit
-#' @importFrom cobalt bal.plot
+#' @importFrom cobalt bal.plot bal.tab
 #' @export
 #' @examples
 #' require(MatchIt)
