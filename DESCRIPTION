@@ -22,8 +22,10 @@ Imports:
    survey,
    boot,
    Zelig
-Authors@R: person("Keon-Woong", "Moon", email = "cardiomoon@gmail.com",
-    role = c("aut", "cre"))
+Authors@R: c(person("Keon-Woong", "Moon", email = "cardiomoon@gmail.com",
+    role = c("aut", "cre")),
+    person("Young Min","Baek",role=c("ctb"), email="ymbaek@yonsei.ac.kr"),
+     person("Rinseo","Park",role=c("ctb"), email="rinseo@yonsei.ac.kr"))
 Description: Several propensity score related functions for the book entitled 
     "Web-based Analysis with R" by Keon-Woong Moon.
 License: GPL-3
