@@ -32,11 +32,23 @@
 #' fullATE=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",
 #' method="full",estimand="ATE")
 #' estimateEffectZelig(fullATE,dep="y")
+#' optimalATT=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",
+#' method="optimal",estimand="ATT",ratio=2)
+#' estimateEffectZelig(optimalATT,dep="y")
+#' geneticATT=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",
+#' method="genetic",estimand="ATT",ratio=2,pop.size=1000)
+#' estimateEffectZelig(geneticATT,dep="y")
+#' geneticATC=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",
+#' method="genetic",estimand="ATC",ratio=2,pop.size=1000)
+#' estimateEffectZelig(geneticATC,dep="y",reverse=TRUE)
+#' mahalaATT=matchit(formula=treat~V1+V2+V3,data=simData,distance="glm",
+#' method="nearest",estimand="ATT",caliper=0.15,ratio=2,mahvars=~V1+V2+V3)
+#' estimateEffectZelig(mahalaATT,dep="y")
 estimateEffectZelig=function(out,mode="continuous",multiple=TRUE,dep,seed=1224,n_sim=10000,reverse=FALSE){
-    # mode="continuous";multiple=TRUE;dep="y";seed=1224;n_sim=10000
+        # mode="continuous";multiple=TRUE;dep="y";seed=1224;n_sim=10000;reverse=FALSE
     set.seed(seed)
     md=match.data(out)
-    temp1=formula2vars(out$formula)
+    temp1=formula2vars(out$formula,allowInteraction=TRUE)
     xvars=temp1$xvars
     yvar=temp1$yvar
     estimand=call2param(out$call)$estimand
@@ -46,10 +58,9 @@ estimateEffectZelig=function(out,mode="continuous",multiple=TRUE,dep,seed=1224,n
         deselect=c()
         temp=paste0(dep[i],"~",yvar)
         if(multiple){
-            form1=out$formula
-        } else{
-            form1=as.formula(temp)
+            temp=paste0(temp,"+",paste0(xvars,collapse="+"))
         }
+        form1=as.formula(temp)
         z_model=zelig(form1,
                       data=md,
                       model='ls',weights="weights",cite=FALSE)
@@ -84,6 +95,7 @@ estimateEffectZelig=function(out,mode="continuous",multiple=TRUE,dep,seed=1224,n
     result$estimand=estimand
     if(reverse) result$estimand="ATC"
     result$method=out$info$method
-    attr(result,"est")=est
+    attr(result,"est")=est[,1]
+    attr(result,"forumar")=form1
     result
 }

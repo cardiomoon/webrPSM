@@ -4,15 +4,18 @@
 \alias{formula2vars}
 \title{Extract variable names with formula}
 \usage{
-formula2vars(formula)
+formula2vars(formula, allowInteraction = FALSE)
 }
 \arguments{
 \item{formula}{An object of class formula}
+
+\item{allowInteraction}{logical}
 }
 \description{
 Extract variable names with formula
 }
 \examples{
 formula = treat ~ age + educ + race + married+nodegree + re74 + re75
+formula = treat ~ age+ race+ age:race
 formula2vars(formula)
 }

@@ -55,4 +55,16 @@ estimateEffectZelig(fullATC2,dep="y",reverse=TRUE)
 fullATE=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",
 method="full",estimand="ATE")
 estimateEffectZelig(fullATE,dep="y")
+optimalATT=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",
+method="optimal",estimand="ATT",ratio=2)
+estimateEffectZelig(optimalATT,dep="y")
+geneticATT=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",
+method="genetic",estimand="ATT",ratio=2,pop.size=1000)
+estimateEffectZelig(geneticATT,dep="y")
+geneticATC=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",
+method="genetic",estimand="ATC",ratio=2,pop.size=1000)
+estimateEffectZelig(geneticATC,dep="y",reverse=TRUE)
+mahalaATT=matchit(formula=treat~V1+V2+V3,data=simData,distance="glm",
+method="nearest",estimand="ATT",caliper=0.15,ratio=2,mahvars=~V1+V2+V3)
+estimateEffectZelig(mahalaATT,dep="y")
 }

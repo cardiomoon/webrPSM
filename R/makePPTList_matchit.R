@@ -321,17 +321,24 @@ call2param=function(call){
 
 #' Extract variable names with formula
 #' @param formula An object of class formula
+#' @param allowInteraction logical
 #' @export
 #' @examples
 #'formula = treat ~ age + educ + race + married+nodegree + re74 + re75
+#'formula = treat ~ age+ race+ age:race
 #'formula2vars(formula)
-formula2vars=function(formula){
+formula2vars=function(formula,allowInteraction=FALSE){
     temp=deparse(formula)
     temp=gsub(" ","",temp)
     temp=unlist(strsplit(temp,"~"))
     yvar=temp[1]
-    # xvars=unlist(strsplit(temp[2],"+",fixed=TRUE))
-    xvars=unique(unlist(strsplit(temp[2],"[+]|[*]|:")))
+    yvar
+    if(allowInteraction){
+      xvars=unlist(strsplit(temp[2],"+",fixed=TRUE))
+    } else{
+       xvars=unique(unlist(strsplit(temp[2],"[+]|[*]|:")))
+    }
+    xvars
     list(yvar=yvar,xvars=xvars)
 }
 

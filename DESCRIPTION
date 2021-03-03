@@ -21,7 +21,10 @@ Imports:
    margins,
    survey,
    boot,
-   Zelig
+   Zelig,
+   dplyr,
+   tidyselect,
+   sensitivitymw
 Authors@R: c(person("Keon-Woong", "Moon", email = "cardiomoon@gmail.com",
     role = c("aut", "cre")),
     person("Young Min","Baek",role=c("ctb"), email="ymbaek@yonsei.ac.kr"),
