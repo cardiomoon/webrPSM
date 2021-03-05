@@ -20,4 +20,6 @@ Find significant gamma range for full matching
 library(MatchIt)
 out=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",method="full")
 tail(gammaRangeSearchFull(out))
+out=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",estimand="ATC",method="full")
+tail(gammaRangeSearchFull(out))
 }

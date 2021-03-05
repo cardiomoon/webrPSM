@@ -48,6 +48,8 @@ generateMatchPairFull=function(out){
 #' library(MatchIt)
 #' out=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",method="full")
 #' tail(gammaRangeSearchFull(out))
+#' out=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",estimand="ATC",method="full")
+#' tail(gammaRangeSearchFull(out))
 gammaRangeSearchFull=function(out,start=1,threshold=0.025){
     mygamma=start
     pvalue=0

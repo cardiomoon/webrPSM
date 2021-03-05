@@ -10,8 +10,9 @@
 #' out=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",caliper=0.15,ratio=2)
 #' generateMatchPair(out,dep="y")
 generateMatchPair=function(out,dep="y"){
-    dataName=call2param(out$call)$data
-    y=eval(parse(text=paste0(dataName,"$",dep)))
+    # dataName=call2param(out$call)$data
+    # y=eval(parse(text=paste0(dataName,"$",dep)))
+    y=out$model$data[[dep]]
 
     myModify=function(x){
         x=as.numeric(as.character(x))
@@ -32,7 +33,8 @@ generateMatchPair=function(out,dep="y"){
 }
 
 #' Find significant gamma range
-#' @param data A data.frame as a result of generateMatchPair()
+#' @param out An object of class matchit
+#' @param dep Character Name of dependent variable
 #' @param start numeric start gamma value
 #' @param threshold numeric p value threshold
 #' @param method method to be passed to senmw()
@@ -41,13 +43,12 @@ generateMatchPair=function(out,dep="y"){
 #' @examples
 #' library(MatchIt)
 #' out=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",caliper=0.15,ratio=2)
-#' df=generateMatchPair(out,dep="y")
-#' tail(gammaRangeSearch(df))
+#' tail(gammaRangeSearch(out,dep="y"))
 #' out=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",ratio=2,method="optimal")
-#' df=generateMatchPair(out,dep="y")
-#' tail(gammaRangeSearch(df))
-gammaRangeSearch=function(data,start=1,threshold=0.025,method="w"){
+#' tail(gammaRangeSearch(out,dep="y"))
+gammaRangeSearch=function(out,dep="y",start=1,threshold=0.025,method="w"){
     # start=1;method="w"
+    data=generateMatchPair(out,dep=dep)
     mygamma=start
     pvalue=0
     myresult=data.frame()

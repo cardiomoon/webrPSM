@@ -4,10 +4,12 @@
 \alias{gammaRangeSearch}
 \title{Find significant gamma range}
 \usage{
-gammaRangeSearch(data, start = 1, threshold = 0.025, method = "w")
+gammaRangeSearch(out, dep = "y", start = 1, threshold = 0.025, method = "w")
 }
 \arguments{
-\item{data}{A data.frame as a result of generateMatchPair()}
+\item{out}{An object of class matchit}
+
+\item{dep}{Character Name of dependent variable}
 
 \item{start}{numeric start gamma value}
 
@@ -21,9 +23,7 @@ Find significant gamma range
 \examples{
 library(MatchIt)
 out=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",caliper=0.15,ratio=2)
-df=generateMatchPair(out,dep="y")
-tail(gammaRangeSearch(df))
+tail(gammaRangeSearch(out,dep="y"))
 out=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",ratio=2,method="optimal")
-df=generateMatchPair(out,dep="y")
-tail(gammaRangeSearch(df))
+tail(gammaRangeSearch(out,dep="y"))
 }

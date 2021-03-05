@@ -1,3 +1,9 @@
+# webrPSM ver 0.1.6
+===================
+(2021-Mar-5)
+
+* new function estimateEffectZeligSubclass, generateMatchPair, generateMatchPairFull, findOptimalK added
+
 # webrPSM ver 0.1.5
 ====================
 (2021-Feb-24)

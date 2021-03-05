@@ -14,6 +14,7 @@
 #' out=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",
 #' caliper=0.15,ratio=2)
 #' estimateEffectZelig(out,dep="y")
+#' \dontrun{
 #' out1=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",estimand="ATC",
 #' caliper=0.15,ratio=2)
 #' estimateEffectZelig(out1,dep="y")
@@ -44,7 +45,8 @@
 #' mahalaATT=matchit(formula=treat~V1+V2+V3,data=simData,distance="glm",
 #' method="nearest",estimand="ATT",caliper=0.15,ratio=2,mahvars=~V1+V2+V3)
 #' estimateEffectZelig(mahalaATT,dep="y")
-estimateEffectZelig=function(out,mode="continuous",multiple=TRUE,dep,seed=1224,n_sim=10000,reverse=FALSE){
+#' }
+estimateEffectZelig=function(out,mode="continuous",multiple=TRUE,dep,seed=1234,n_sim=10000,reverse=FALSE){
         # mode="continuous";multiple=TRUE;dep="y";seed=1224;n_sim=10000;reverse=FALSE
     set.seed(seed)
     md=match.data(out)
@@ -96,6 +98,6 @@ estimateEffectZelig=function(out,mode="continuous",multiple=TRUE,dep,seed=1224,n
     if(reverse) result$estimand="ATC"
     result$method=out$info$method
     attr(result,"est")=est[,1]
-    attr(result,"forumar")=form1
+    attr(result,"formula")=form1
     result
 }
