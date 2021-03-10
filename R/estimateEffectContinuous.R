@@ -176,10 +176,11 @@ plotCompareEffects=function(data,dep="y",seed=1234,print=TRUE){
 #' @param xvars Name of covariates
 #' @param treatvar Name of continuous treatment variable
 #' @param dep Name of dependent variable
+#' @param seed Numeric
 #' @export
 #' @examples
 #' result=makePPTList_IPW("simData2",xvars=c("x1","x2"),treatvar="treat",dep="y")
-makePPTList_IPW=function(dataName,xvars,treatvar,dep){
+makePPTList_IPW=function(dataName,xvars,treatvar,dep,seed=1234){
     # dataName="simData2";xvars=c("x1","x2");treatvar="treat";dep="y"
     title<-type<-code<-c()
 
@@ -193,15 +194,15 @@ makePPTList_IPW=function(dataName,xvars,treatvar,dep){
 
     title=c(title,"Estimate Dose-Response Function")
     type=c(type,"Rcode")
-    code=c(code,paste0("estimateEffectContinuous(mydata,dep='",dep,"',weights='IPW')"))
+    code=c(code,paste0("estimateEffectContinuous(mydata,dep='",dep,"',weights='IPW',seed=",seed,")"))
 
     title=c(title,"Comparing Effect with Linear Model")
     type=c(type,"Rcode")
-    code=c(code,paste0("plotCompareEffects(mydata,dep='",dep,"',print=FALSE)$result"))
+    code=c(code,paste0("plotCompareEffects(mydata,dep='",dep,"',seed=",seed,",print=FALSE)$result"))
 
     title=c(title,"Comparing Effect with Linear Model")
     type=c(type,"ggplot")
-    code=c(code,paste0("plotCompareEffects(mydata,dep='",dep,"',print=FALSE)$plot"))
+    code=c(code,paste0("plotCompareEffects(mydata,dep='",dep,"',seed=",seed,",print=FALSE)$plot"))
 
     data.frame(title=title,type=type,code=code,stringsAsFactors = FALSE)
 }

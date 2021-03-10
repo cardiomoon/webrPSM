@@ -4,7 +4,7 @@
 \alias{makePPTList_IPW}
 \title{make pptList with Matching with IPW}
 \usage{
-makePPTList_IPW(dataName, xvars, treatvar, dep)
+makePPTList_IPW(dataName, xvars, treatvar, dep, seed = 1234)
 }
 \arguments{
 \item{dataName}{Name of data}
@@ -14,6 +14,8 @@ makePPTList_IPW(dataName, xvars, treatvar, dep)
 \item{treatvar}{Name of continuous treatment variable}
 
 \item{dep}{Name of dependent variable}
+
+\item{seed}{Numeric}
 }
 \description{
 make pptList with Matching with IPW
