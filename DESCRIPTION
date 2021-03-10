@@ -26,6 +26,7 @@ Imports:
    tidyselect,
    rlang,
    egg,
+   twang,
    sensitivitymw,
    sensitivityfull
 Authors@R: c(person("Keon-Woong", "Moon", email = "cardiomoon@gmail.com",
