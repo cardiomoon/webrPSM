@@ -4,10 +4,12 @@
 \alias{generateMatchPairFull}
 \title{Generate list for sensitivity test}
 \usage{
-generateMatchPairFull(out)
+generateMatchPairFull(out, dep)
 }
 \arguments{
 \item{out}{An object of class matchit}
+
+\item{dep}{Name of dependent variable}
 }
 \description{
 Generate list for sensitivity test
@@ -15,5 +17,5 @@ Generate list for sensitivity test
 \examples{
 library(MatchIt)
 out=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",method="full")
-generateMatchPairFull(out)
+generateMatchPairFull(out,dep="y")
 }

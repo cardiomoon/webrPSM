@@ -20,6 +20,6 @@ Draw plot comparing IPW and linear regression
 }
 \examples{
 set.seed(1234)
-mydata=addIPW(simData2,xvars=c("x1","x2"),treatvar="treat")
+mydata=addIPW(treat~x1+x2,data=simData2)
 plotCompareEffects(mydata)
 }

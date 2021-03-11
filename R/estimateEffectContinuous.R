@@ -1,15 +1,20 @@
 #' Add IPW(inverse probability weight) to a data.frame
-#' @param xvars Names of covariates
-#' @param treatvar Name of continuous treatment variable
+#' @param formula A formula
 #' @param data A data.frame
 #' @importFrom stats dnorm
 #' @export
 #' @examples
-#' mydata=addIPW(simData2,xvars=c("x1","x2"),treatvar="treat")
-addIPW=function(data,xvars,treatvar){
+#' formula=treat~x1+x2
+#' mydata=addIPW(treat~x1+x2,data=simData2)
+addIPW=function(formula, data){
+
+    formula=treat~x1+x2
+    temp=gsub(" ","",deparse(formula))
+    temp=unlist(strsplit(temp,"~"))
+    treatvar=temp[1]
+    xvars=unlist(strsplit(temp[2],"+",fixed=TRUE))
     mydata=data
-    form1=paste0(treatvar,"~",paste0(xvars,collapse="+"))
-    lmGPS=lm(as.formula(form1),data=mydata)
+    lmGPS=lm(formula,data=mydata)
 
     mydata$GPS=dnorm(mydata[[treatvar]],mean=lmGPS$fitted,sd=summary(lmGPS)$sigma)
     mydata$numerator=dnorm(mydata[[treatvar]],mean=mean(mydata$treat),sd=sd(mydata$treat))
@@ -43,8 +48,8 @@ standardize=function(x,max.ylev=2){
 #' @importFrom dplyr mutate_at vars all_of
 #' @export
 #' @examples
-#' data=addIPW(simData2,xvars=c("x1","x2"),treatvar="treat")
-#' balanceCheck(data)
+#' mydata=addIPW(treat~x1+x2,data=simData2)
+#' balanceCheck(mydata)
 balanceCheck=function(data,xvars=NULL,treatvar=NULL){
       # xvars=NULL;treatvar=NULL
     if(is.null(xvars)) xvars=attr(data,"xvars")
@@ -75,7 +80,7 @@ balanceCheck=function(data,xvars=NULL,treatvar=NULL){
 #' @importFrom Zelig zelig
 #' @export
 #' @examples
-#' mydata=addIPW(simData2,xvars=c("x1","x2"),treatvar="treat")
+#' mydata=addIPW(treat~x1+x2,data=simData2)
 #' estimateEffectContinuous(mydata,dep="y",weights="IPW")
 #' estimateEffectContinuous(mydata,dep="y")
 estimateEffectContinuous=function(data,dep,xvars=NULL,treatvar=NULL,seed=1234,probs=0.1*(1:9),num=10000,weights=NULL){
@@ -103,7 +108,7 @@ estimateEffectContinuous=function(data,dep,xvars=NULL,treatvar=NULL,seed=1234,pr
 #' @export
 #' @examples
 #' library(Zelig)
-#' mydata=addIPW(simData2,xvars=c("x1","x2"),treatvar="treat")
+#' mydata=addIPW(treat~x1+x2,data=simData2)
 #' out=zelig(y~treat+x1+x2,data=mydata,model="ls",weights="IPW",cite=FALSE)
 #' zelig2est(out)
 zelig2est=function(out,probs=0.1*(1:9),num=10000){
@@ -140,7 +145,7 @@ zelig2est=function(out,probs=0.1*(1:9),num=10000){
 #' @export
 #' @examples
 #' set.seed(1234)
-#' mydata=addIPW(simData2,xvars=c("x1","x2"),treatvar="treat")
+#' mydata=addIPW(treat~x1+x2,data=simData2)
 #' plotCompareEffects(mydata)
 plotCompareEffects=function(data,dep="y",seed=1234,print=TRUE){
     # if(is.null(xvars)) xvars=attr(data,"xvars")
@@ -172,21 +177,19 @@ plotCompareEffects=function(data,dep="y",seed=1234,print=TRUE){
 }
 
 #' make pptList with Matching with IPW
-#' @param dataName Name of data
-#' @param xvars Name of covariates
-#' @param treatvar Name of continuous treatment variable
+#' @param x Character
 #' @param dep Name of dependent variable
 #' @param seed Numeric
 #' @export
 #' @examples
-#' result=makePPTList_IPW("simData2",xvars=c("x1","x2"),treatvar="treat",dep="y")
-makePPTList_IPW=function(dataName,xvars,treatvar,dep,seed=1234){
-    # dataName="simData2";xvars=c("x1","x2");treatvar="treat";dep="y"
+#' result=makePPTList_IPW(x="addIPW(treat~x1+x2,data=simData2)",dep="y",seed=1234)
+makePPTList_IPW=function(x,dep,seed=1234){
+       # x="addIPW(treat~x1+x2,data=simData2)";dep="y";seed=1234
     title<-type<-code<-c()
 
     title="Calculate IPW and add to data"
     type="Rcode"
-    code=paste0("mydata<-addIPW(",dataName,",xvars=c('",paste0(xvars,collapse="','"),"'),treatvar='",treatvar,"');head(mydata)")
+    code=paste0("mydata<-",x,";head(mydata)")
 
     title=c(title,"Covariates Balance Check")
     type=c(type,"Rcode")

@@ -26,4 +26,6 @@ out=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",caliper=0.15
 tail(gammaRangeSearch(out,dep="y"))
 out=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",ratio=2,method="optimal")
 tail(gammaRangeSearch(out,dep="y"))
+out=matchit(treat~age+educ+race+married+nodegree+re74+re75,data=lalonde)
+tail(gammaRangeSearch(out,dep="re78"))
 }

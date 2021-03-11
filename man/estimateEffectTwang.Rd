@@ -34,4 +34,5 @@ library(twang)
 data(AOD)
 out=mnps(treat ~ illact + crimjust + subprob + subdep + white,data = AOD,n.trees = 3000)
 estimateEffectTwang(out,dep="suf12",adjustCovar=FALSE)
+estimateEffectTwang(out,dep="suf12",adjustCovar=TRUE)
 }

@@ -1,3 +1,9 @@
+# webrPSM ver 0.1.7
+===================
+(2021-Mar-11)
+
+* new function makePPTList_mnps, makePPTList_IPW, estimateEffectContinuous added
+
 # webrPSM ver 0.1.6
 ===================
 (2021-Mar-5)

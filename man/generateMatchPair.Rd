@@ -18,4 +18,6 @@ Generate data.frame for sensitivity test
 library(MatchIt)
 out=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",caliper=0.15,ratio=2)
 generateMatchPair(out,dep="y")
+out=matchit(treat~age+educ+race+married+nodegree+re74+re75,data=lalonde)
+generateMatchPair(out,dep="re78")
 }

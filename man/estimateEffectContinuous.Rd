@@ -36,7 +36,7 @@ estimateEffectContinuous(
 estimate effect based on IPW(inverse probability weight)
 }
 \examples{
-mydata=addIPW(simData2,xvars=c("x1","x2"),treatvar="treat")
+mydata=addIPW(treat~x1+x2,data=simData2)
 estimateEffectContinuous(mydata,dep="y",weights="IPW")
 estimateEffectContinuous(mydata,dep="y")
 }

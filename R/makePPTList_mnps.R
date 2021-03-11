@@ -46,6 +46,7 @@ makePPTList_mnps=function(x,dep="",adjustCovar=FALSE,covars="",method="GBM"){
 #'data(AOD)
 #'out=mnps(treat ~ illact + crimjust + subprob + subdep + white,data = AOD,n.trees = 3000)
 #'estimateEffectTwang(out,dep="suf12",adjustCovar=FALSE)
+#'estimateEffectTwang(out,dep="suf12",adjustCovar=TRUE)
 estimateEffectTwang=function(out,dep,stop.method="es.mean",adjustCovar=FALSE,covars="",method="GBM"){
 
     # out=ps.lalonde;stop.method = "es.mean";adjustCovar=TRUE;dep="re78";covars=""

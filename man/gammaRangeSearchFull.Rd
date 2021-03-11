@@ -4,10 +4,12 @@
 \alias{gammaRangeSearchFull}
 \title{Find significant gamma range for full matching}
 \usage{
-gammaRangeSearchFull(out, start = 1, threshold = 0.025)
+gammaRangeSearchFull(out, dep, start = 1, threshold = 0.025)
 }
 \arguments{
 \item{out}{An object of class matchit}
+
+\item{dep}{Name of dependent variable}
 
 \item{start}{numeric start gamma value}
 
@@ -19,7 +21,10 @@ Find significant gamma range for full matching
 \examples{
 library(MatchIt)
 out=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",method="full")
-tail(gammaRangeSearchFull(out))
+tail(gammaRangeSearchFull(out,dep="y"))
 out=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",estimand="ATC",method="full")
-tail(gammaRangeSearchFull(out))
+tail(gammaRangeSearchFull(out,dep="y"))
+out=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
+   method="full")
+tail(gammaRangeSearchFull(out,dep="re78"))
 }

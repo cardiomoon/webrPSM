@@ -15,7 +15,8 @@ makePPTList_matchit(
   multiple = TRUE,
   depKind = "continuous",
   covarCentering = FALSE,
-  withinSubclass = FALSE
+  withinSubclass = FALSE,
+  analyzeSens = FALSE
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ makePPTList_matchit(
 \item{covarCentering}{logical}
 
 \item{withinSubclass}{logical}
+
+\item{analyzeSens}{logical}
 }
 \description{
 make pptList with an object of class matchit
@@ -52,6 +55,8 @@ x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalo
    method="exact")
 x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
    method="full",link='probit')
+x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
+   method="nearest",link='probit')
 result=makePPTList_matchit(x)
-result=makePPTList_matchit(x,depvar="re78")
+result=makePPTList_matchit(x,depvar="re78",analyzeSens=TRUE)
 }

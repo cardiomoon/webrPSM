@@ -4,18 +4,17 @@
 \alias{addIPW}
 \title{Add IPW(inverse probability weight) to a data.frame}
 \usage{
-addIPW(data, xvars, treatvar)
+addIPW(formula, data)
 }
 \arguments{
+\item{formula}{A formula}
+
 \item{data}{A data.frame}
-
-\item{xvars}{Names of covariates}
-
-\item{treatvar}{Name of continuous treatment variable}
 }
 \description{
 Add IPW(inverse probability weight) to a data.frame
 }
 \examples{
-mydata=addIPW(simData2,xvars=c("x1","x2"),treatvar="treat")
+formula=treat~x1+x2
+mydata=addIPW(treat~x1+x2,data=simData2)
 }

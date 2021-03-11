@@ -354,6 +354,7 @@ formula2vars=function(formula,allowInteraction=FALSE){
 #' @param depKind character One of c("continuous","binary","survival")
 #' @param covarCentering logical
 #' @param withinSubclass logical
+#' @param analyzeSens logical
 #' @importFrom lmtest coeftest
 #' @importFrom sandwich vcovCL
 #' @importFrom MatchIt matchit
@@ -367,13 +368,16 @@ formula2vars=function(formula,allowInteraction=FALSE){
 #'    method="exact")
 #' x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
 #'    method="full",link='probit')
+#' x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
+#'    method="nearest",link='probit')
 #' result=makePPTList_matchit(x)
-#' result=makePPTList_matchit(x,depvar="re78")
+#' result=makePPTList_matchit(x,depvar="re78",analyzeSens=TRUE)
 makePPTList_matchit=function(x,depvar=NULL,seed=1234,
                              m.threshold=0.1,v.threshold=2,
                              compare=TRUE,report=TRUE,
                              multiple=TRUE, depKind="continuous",
-                             covarCentering=FALSE,withinSubclass=FALSE){
+                             covarCentering=FALSE,withinSubclass=FALSE,
+                             analyzeSens=FALSE){
      # depvar=NULL;seed=1234;compare=TRUE;report=TRUE
      # multiple=TRUE; depKind="continuous"
      # covarCentering=FALSE;withinSubclass=FALSE
@@ -558,8 +562,19 @@ makePPTList_matchit=function(x,depvar=NULL,seed=1234,
 
        }
 
-     }
 
+     if(analyzeSens){
+     if(matchMethod %in% c("nearest","optimal","genetic")) {
+       title=c(title,"Sensitivity Analysis")
+       type=c(type,"Rcode")
+       code=c(code,paste0("gammaRangeSearch(matched,dep='",depvar,"')"))
+     } else if(matchMethod=="full"){
+       title=c(title,"Sensitivity Analysis")
+       type=c(type,"Rcode")
+       code=c(code,paste0("gammaRangeSearchFull(matched,dep='",depvar,"')"))
+     }
+     }
+     }
 
      data.frame(title,type,code,stringsAsFactors = FALSE)
 }

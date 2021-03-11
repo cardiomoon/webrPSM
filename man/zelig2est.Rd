@@ -18,7 +18,7 @@ Estimate dose-response function
 }
 \examples{
 library(Zelig)
-mydata=addIPW(simData2,xvars=c("x1","x2"),treatvar="treat")
+mydata=addIPW(treat~x1+x2,data=simData2)
 out=zelig(y~treat+x1+x2,data=mydata,model="ls",weights="IPW",cite=FALSE)
 zelig2est(out)
 }

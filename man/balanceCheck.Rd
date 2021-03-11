@@ -17,6 +17,6 @@ balanceCheck(data, xvars = NULL, treatvar = NULL)
 Covariates balance check
 }
 \examples{
-data=addIPW(simData2,xvars=c("x1","x2"),treatvar="treat")
-balanceCheck(data)
+mydata=addIPW(treat~x1+x2,data=simData2)
+balanceCheck(mydata)
 }
