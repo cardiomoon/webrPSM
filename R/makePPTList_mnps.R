@@ -13,11 +13,11 @@
 makePPTList_mnps=function(x,dep="",adjustCovar=FALSE,covars="",method="GBM"){
     # dep="suf12";adjustCovar=FALSE;covars="";method="GBM"
     #out<-eval(parse(text=x))
-    title=c("Summary","Balance Check","Probability of Receiving Each Treatment",
+    title=c("Matching with twang::mnps()","Summary","Balance Check","Probability of Receiving Each Treatment",
             "Balance Check","t and chi-squared p-value",
             "Balance Table(1)","Balance Table(2)","Balance Table(3)")
-    type=c("Rcode","plot","plot","plot","plot","Rcode","Rcode","Rcode")
-    code=c(paste0("out<-",x,";summary(out)"),"p<-plot(out,plots=1)","p<-plot(out, plots = 2)",
+    type=c("Pre","Rcode","plot","plot","plot","plot","Rcode","Rcode","Rcode")
+    code=c(paste0("out<-",x),"summary(out)","p<-plot(out,plots=1)","p<-plot(out, plots = 2)",
            "p<-plot(out, plots = 3,pairwiseMax = FALSE)","print(plot(out, plots = 4))",
            "bal.table(out)","bal.table(out, collapse.to = 'covariate')","bal.table(out, collapse.to = 'stop.method')")
     if(dep!=""){
