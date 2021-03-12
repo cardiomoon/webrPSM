@@ -58,22 +58,26 @@ estimateEffectTwang=function(out,dep,stop.method="es.mean",adjustCovar=FALSE,met
     # method="GBM"
     # method="lm"
     # method="glm"
+    if(class(out)=="ps"){
+        yvar=out$gbm.obj$response.name
+        xvars=out$gbm.obj$var.names
+    } else if(class(out)=="mnps"){
 
-    yvar=out$treat.var
-    xvars=attr(out[[1]][[1]]$gbm.obj$Terms,"term.labels")
-    stop.method=out$stopMethods[1]
-
+       yvar=out$treat.var
+       xvars=attr(out[[1]][[1]]$gbm.obj$Terms,"term.labels")
+       stop.method=out$stopMethods[1]
+    }
     temp=paste0(dep,"~",yvar)
-
     if(adjustCovar) {
         temp=paste0(temp,"+",paste0(xvars,collapse="+"))
     }
-    temp
+
     form1=as.formula(temp)
     data1=out$data
 
     data1$w<-twang::get.weights(out,stop.method = stop.method)
     design.ps <- survey::svydesign(ids=~1, weights=~w, data=data1)
+    if(method=="GBM"){
 
     if(out$estimand=="ATE"){
         txnames=levels(data1[[yvar]])
@@ -107,7 +111,7 @@ estimateEffectTwang=function(out,dep,stop.method="es.mean",adjustCovar=FALSE,met
         result4
         mylist[[no+1]]=result4
         names(mylist)[no+1]="causal effect of each tx relative to the average potential outcome of all tx."
-        mylist
+        result= mylist
 
     } else {
         glm=svyglm(form1,design=design.ps)
@@ -117,6 +121,28 @@ estimateEffectTwang=function(out,dep,stop.method="es.mean",adjustCovar=FALSE,met
         result$upper=confint(glm)[,2]
         result
     }
+    } else if(method=="lm"){
+        model<-lm(form1,data=data1)
+    } else if(method=="glm"){  # glm
+        form2=paste0(yvar,"~",paste0(xvars,collapse="+"))
+        out1=glm(form2,data=data1,family=binomial)
+        data1$w.logit<-rep(1,nrow(data1))
+        data1$w.logit[data1[[yvar]]==0] <-exp(predict(out1,subset(data1,data1[[yvar]]==0)))
+        design.logit=svydesign(ids=~1,weights=~w.logit,data=data1)
+        model<-svyglm(form1,design=design.logit)
+    } else if(method=="chisq"){
+        data1$w<-twang::get.weights(out,stop.method = stop.method)
+        design.ps <- survey::svydesign(ids=~1, weights=~w, data=data1)
+        # result=svychisq(as.formula(paste0("~",dep,"+",yvar)),design=design.ps)
+        result=eval(parse(text=paste0("svychisq(~",dep,"+",yvar,",design=design.ps)")))
+    }
+    if(method %in% c("lm","glm")){
+        # summary(model)$coef
+        result=as.data.frame(summary(model)$coef)
+        result$lower=confint(model)[,1]
+        result$upper=confint(model)[,2]
+    }
+    result
 
 
 }
