@@ -9,7 +9,6 @@ estimateEffectTwang(
   dep,
   stop.method = "es.mean",
   adjustCovar = FALSE,
-  covars = "",
   method = "GBM"
 )
 }
@@ -22,8 +21,6 @@ estimateEffectTwang(
 
 \item{adjustCovar}{logical}
 
-\item{covars}{string}
-
 \item{method}{Method of PS estimate. One of c("GBM","lm","glm","chisq").}
 }
 \description{
@@ -32,7 +29,10 @@ Estimate Treatment Effect
 \examples{
 library(twang)
 data(AOD)
-out=mnps(treat ~ illact + crimjust + subprob + subdep + white,data = AOD,n.trees = 3000)
-estimateEffectTwang(out,dep="suf12",adjustCovar=FALSE)
-estimateEffectTwang(out,dep="suf12",adjustCovar=TRUE)
+out=mnps(treat ~ illact + crimjust + subprob + subdep + white,data = AOD,
+stop.method=c("es.mean","ks.mean"),n.trees = 3000)
+estimateEffectTwang(out,dep="suf12")
+out1=mnps(treat ~ illact + crimjust + subprob + subdep + white,data = AOD,
+estimand="ATT",treatATT="community",stop.method=c("es.mean","ks.mean"),n.trees = 3000)
+estimateEffectTwang(out1,dep="suf12")
 }
