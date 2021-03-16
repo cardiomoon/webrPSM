@@ -8,7 +8,7 @@
 #' mydata=addIPW(treat~x1+x2,data=simData2)
 addIPW=function(formula, data){
 
-    formula=treat~x1+x2
+    # formula=treat~x1+x2
     temp=gsub(" ","",deparse(formula))
     temp=unlist(strsplit(temp,"~"))
     treatvar=temp[1]
@@ -51,14 +51,22 @@ standardize=function(x,max.ylev=2){
 #' mydata=addIPW(treat~x1+x2,data=simData2)
 #' balanceCheck(mydata)
 balanceCheck=function(data,xvars=NULL,treatvar=NULL){
-      # xvars=NULL;treatvar=NULL
+       # xvars=NULL;treatvar=NULL
     if(is.null(xvars)) xvars=attr(data,"xvars")
     if(is.null(treatvar)) treatvar=attr(data,"treatvar")
     all_of(c(xvars,treatvar))
 
+    exclude=c()
+    for(i in seq_along(xvars)){
+       if(!is.numeric(data[[xvars[i]]])) {
+           exclude=c(exclude,xvars[i])
+           data[[xvars[i]]]<-NULL
+       }
+    }
+    xvars=setdiff(xvars,exclude)
     stdData=data %>% mutate_at(all_of(c(xvars,treatvar)),standardize)
     coef=c()
-
+    xvars
     for(i in seq_along(xvars)){
         form2=paste0(xvars[i],"~",treatvar)
         coef=c(coef,lm(as.formula(form2),data=stdData,weights=stdData[["IPW"]])$coef[2])
@@ -85,13 +93,13 @@ balanceCheck=function(data,xvars=NULL,treatvar=NULL){
 #' estimateEffectContinuous(mydata,dep="y")
 estimateEffectContinuous=function(data,dep,xvars=NULL,treatvar=NULL,seed=1234,probs=0.1*(1:9),num=10000,weights=NULL){
     # data=addIPW(simData2,xvars=c("x1","x2"),treatvar="treat")
-    # dep="y"
-    # xvars=NULL;treatvar=NULL;seed=1234;probs=0.1*(1:9);num=10000;weights=NULL
+     # dep="re78"
+      # xvars=NULL;treatvar=NULL;seed=1234;probs=0.1*(1:9);num=10000;weights="IPW"
     set.seed(seed)
     if(is.null(xvars)) xvars=attr(data,"xvars")
     if(is.null(treatvar)) treatvar=attr(data,"treatvar")
     form1=paste0(dep,"~",treatvar,"+",paste0(xvars,collapse="+"))
-    #print(form1)
+     # print(form1)
     if(is.null(weights)){
         out=zelig(as.formula(form1),data=data,model="ls",cite=FALSE)
     } else{
@@ -112,13 +120,16 @@ estimateEffectContinuous=function(data,dep,xvars=NULL,treatvar=NULL,seed=1234,pr
 #' out=zelig(y~treat+x1+x2,data=mydata,model="ls",weights="IPW",cite=FALSE)
 #' zelig2est(out)
 zelig2est=function(out,probs=0.1*(1:9),num=10000){
+    #probs=0.1*(1:9);num=10000
     result=data.frame()
     orgData=out$originaldata
     treatVar=formula2vars(out$formula)$xvars[1]
     range1=quantile(orgData[[treatVar]],probs=probs)
-    #print(range1)
+    # print(range1)
+
     for(i in seq_along(range1)){
-        x=setx(out,treat=range1[i],data=orgData)
+        temp=paste0("setx(out,",treatVar,"=range1[i],data=orgData)")
+        x=eval(parse(text=temp))
         s=sim(out,x,num=num)
         ev=data.frame(t(get_qi(s,"ev")))
         result=rbind(result,ev)
@@ -126,7 +137,6 @@ zelig2est=function(out,probs=0.1*(1:9),num=10000){
 
     names(result)=paste0("sim",1:num)
     result[["treat"]]=range1
-
     result %>%
         pivot_longer(cols=starts_with("sim")) %>%
         group_by(.data$treat) %>%
@@ -183,7 +193,8 @@ plotCompareEffects=function(data,dep="y",seed=1234,print=TRUE){
 #' @export
 #' @examples
 #' result=makePPTList_IPW(x="addIPW(treat~x1+x2,data=simData2)",dep="y",seed=1234)
-makePPTList_IPW=function(x,dep,seed=1234){
+#' result=makePPTList_IPW(x="addIPW(educ~age+race+married,data=lalonde)",dep="re78",seed=1234)
+makePPTList_IPW=function(x,dep="",seed=1234){
        # x="addIPW(treat~x1+x2,data=simData2)";dep="y";seed=1234
     title<-type<-code<-c()
 
@@ -195,6 +206,7 @@ makePPTList_IPW=function(x,dep,seed=1234){
     type=c(type,"Rcode")
     code=c(code,"balanceCheck(mydata)")
 
+    if(dep!=""){
     title=c(title,"Estimate Dose-Response Function")
     type=c(type,"Rcode")
     code=c(code,paste0("estimateEffectContinuous(mydata,dep='",dep,"',weights='IPW',seed=",seed,")"))
@@ -207,5 +219,6 @@ makePPTList_IPW=function(x,dep,seed=1234){
     type=c(type,"ggplot")
     code=c(code,paste0("plotCompareEffects(mydata,dep='",dep,"',seed=",seed,",print=FALSE)$plot"))
 
+    }
     data.frame(title=title,type=type,code=code,stringsAsFactors = FALSE)
 }

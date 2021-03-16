@@ -4,7 +4,7 @@
 \alias{makePPTList_IPW}
 \title{make pptList with Matching with IPW}
 \usage{
-makePPTList_IPW(x, dep, seed = 1234)
+makePPTList_IPW(x, dep = "", seed = 1234)
 }
 \arguments{
 \item{x}{Character}
@@ -18,4 +18,5 @@ make pptList with Matching with IPW
 }
 \examples{
 result=makePPTList_IPW(x="addIPW(treat~x1+x2,data=simData2)",dep="y",seed=1234)
+result=makePPTList_IPW(x="addIPW(educ~age+race+married,data=lalonde)",dep="re78",seed=1234)
 }
