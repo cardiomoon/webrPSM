@@ -1,3 +1,9 @@
+# webrPSM ver 0.1.8
+===================
+(2021-Mar-17)
+
+* new function factor2dummy, changeVarnames added
+
 # webrPSM ver 0.1.7
 ===================
 (2021-Mar-11)

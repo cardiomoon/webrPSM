@@ -19,4 +19,7 @@ Covariates balance check
 \examples{
 mydata=addIPW(treat~x1+x2,data=simData2)
 balanceCheck(mydata)
+data(lalonde,package="MatchIt")
+mydata1 = addIPW(age~educ+race+married, data=lalonde)
+balanceCheck(mydata1)
 }

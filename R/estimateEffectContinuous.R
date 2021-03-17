@@ -1,3 +1,31 @@
+#' Make factor to dummary variable in a data.frame
+#' @param df A data.frame
+#' @export
+#' @examples
+#' iris2=factor2dummy(iris)
+factor2dummy=function(df){
+  resdf=list()
+  resdf
+
+  for(i in 1:ncol(df)){
+    if(is.factor(df[[i]])){
+      temp=levels(df[[i]])
+      for(j in seq_along(temp)){
+        resdf[[paste0(colnames(df)[i],temp[j])]]=ifelse(df[[i]]==temp[j],1,0)
+      }
+    } else if(is.character(df[[i]])){
+      temp=sort(unique(df[[i]]))
+      for(j in seq_along(temp)){
+        resdf[[paste0(colnames(df)[i],temp[j])]]=ifelse(df[[i]]==temp[j],1,0)
+      }
+    } else{
+      df[[i]]
+      resdf[[colnames(df)[i]]]=df[[i]]
+    }
+  }
+  data.frame(resdf)
+}
+
 #' Add IPW(inverse probability weight) to a data.frame
 #' @param formula A formula
 #' @param data A data.frame
@@ -17,7 +45,7 @@ addIPW=function(formula, data){
     lmGPS=lm(formula,data=mydata)
 
     mydata$GPS=dnorm(mydata[[treatvar]],mean=lmGPS$fitted,sd=summary(lmGPS)$sigma)
-    mydata$numerator=dnorm(mydata[[treatvar]],mean=mean(mydata$treat),sd=sd(mydata$treat))
+    mydata$numerator=dnorm(mydata[[treatvar]],mean=mean(mydata[[treatvar]]),sd=sd(mydata[[treatvar]]))
     mydata$IPW = mydata$numerator/mydata$GPS
     attr(mydata,"xvars")=xvars
     attr(mydata,"treatvar")=treatvar
@@ -39,7 +67,28 @@ standardize=function(x,max.ylev=2){
     result
 }
 
+#'Change names of factor or character column name
+#'@param data A data.frame
+#'@param xvars string names of columns
+#'@export
+#'@examples
+#'changeVarnames(iris,xvars=c("Septal.Length","Species"))
+changeVarnames=function(data,xvars){
+    result=c()
+    for(i in seq_along(xvars)){
 
+        if(is.factor(data[[xvars[i]]])) {
+            temp=levels(data[[xvars[i]]])
+            result=c(result,paste0(xvars[i],temp))
+        } else if(is.character(data[[xvars[i]]])){
+           temp=sort(unique(data[[xvars[i]]]))
+            result=c(result,paste0(xvars[i],temp))
+        } else{
+            result=c(result,xvars[i])
+        }
+    }
+    result
+}
 
 #' Covariates balance check
 #' @param xvars Names of covariates
@@ -50,20 +99,27 @@ standardize=function(x,max.ylev=2){
 #' @examples
 #' mydata=addIPW(treat~x1+x2,data=simData2)
 #' balanceCheck(mydata)
+#' data(lalonde,package="MatchIt")
+#' mydata1 = addIPW(age~educ+race+married, data=lalonde)
+#' balanceCheck(mydata1)
 balanceCheck=function(data,xvars=NULL,treatvar=NULL){
-       # xvars=NULL;treatvar=NULL
+         # xvars=NULL;treatvar=NULL
+         # data=mydata1
     if(is.null(xvars)) xvars=attr(data,"xvars")
     if(is.null(treatvar)) treatvar=attr(data,"treatvar")
-    all_of(c(xvars,treatvar))
 
-    exclude=c()
-    for(i in seq_along(xvars)){
-       if(!is.numeric(data[[xvars[i]]])) {
-           exclude=c(exclude,xvars[i])
-           data[[xvars[i]]]<-NULL
-       }
-    }
-    xvars=setdiff(xvars,exclude)
+
+    # exclude=c()
+    # for(i in seq_along(xvars)){
+    #    if(!is.numeric(data[[xvars[i]]])) {
+    #        exclude=c(exclude,xvars[i])
+    #        data[[xvars[i]]]<-NULL
+    #    }
+    # }
+    # xvars=setdiff(xvars,exclude)
+    xvars=changeVarnames(data,xvars)
+    data <-factor2dummy(data)
+
     stdData=data %>% mutate_at(all_of(c(xvars,treatvar)),standardize)
     coef=c()
     xvars
@@ -91,6 +147,9 @@ balanceCheck=function(data,xvars=NULL,treatvar=NULL){
 #' mydata=addIPW(treat~x1+x2,data=simData2)
 #' estimateEffectContinuous(mydata,dep="y",weights="IPW")
 #' estimateEffectContinuous(mydata,dep="y")
+#' data(lalonde,package="MatchIt")
+#' mydata1=addIPW(age~educ+race+married, data=lalonde)
+#' estimateEffectContinuous(mydata1,dep="re78",weights="IPW")
 estimateEffectContinuous=function(data,dep,xvars=NULL,treatvar=NULL,seed=1234,probs=0.1*(1:9),num=10000,weights=NULL){
     # data=addIPW(simData2,xvars=c("x1","x2"),treatvar="treat")
      # dep="re78"
