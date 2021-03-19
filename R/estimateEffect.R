@@ -5,6 +5,8 @@ utils::globalVariables(c("id", "subclass"))
 #' @param mode One of c("continuous","binary","survival")
 #' @param multiple logical Whether or not perform multiple regression
 #' @param dep Name of dependent variable
+#' @param time Name of time variable
+#' @param status Name of status variable
 #' @param covarCentering logical
 #' @param withinSubclass logical
 #' @param digits integer indicating the number of decimal places
@@ -64,18 +66,21 @@ utils::globalVariables(c("id", "subclass"))
 #'    method="exact")
 #' estimateEffect(x,dep=c("re78"))
 #' }
-estimateEffect=function(out,mode="continuous",multiple=TRUE,dep,
+estimateEffect=function(out,mode="continuous",multiple=TRUE,dep="",time="",status="",
                         covarCentering=FALSE,withinSubclass=FALSE,
                         digits=2,sedigits=2,pdigits=4,se=TRUE,print=TRUE){
 
   # mode="continuous";multiple=FALSE;dep="Y_C"
   # mode="continuous";multiple=TRUE;dep="re78"
-  # covarCentering=FALSE;withinSubclass=FALSE
+  # covarCentering=FALSE;withinSubclass=FALSE;multiple=FALSE
   # digits=2;sedigits=2;pdigits=4;se=TRUE;print=TRUE
+  # mode="survival";dep="";time="time";status="cens"
 
   temp1=formula2vars(out$formula)
   xvars=temp1$xvars
+  xvars
   yvar=temp1$yvar
+  yvar
   replace=FALSE
   deselect=c()
 
@@ -96,7 +101,7 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep,
       x
     }
   }
-
+  if((dep[1]=="")&(time!="")&(status!="")) mode="survival"
 
   if(covarCentering){
     md[xvars]<-lapply(md[xvars],myCentering)
@@ -105,10 +110,17 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep,
   for(i in seq_along(dep)){
 
     if(mode=="survival"){
-      temp=paste0("survival::Surv(",dep[i],")~",yvar)
+      if(dep[i]==""){
+          temp=paste0("survival::Surv(",time,",",status,")~",yvar)
+      } else if("Surv" %in%class(md[[dep[i]]])){
+          temp=paste0(dep[i],"~",yvar)
+      } else{
+          temp=paste0("survival::Surv(",dep[i],")~",yvar)
+      }
     } else{
       temp=paste0(dep[i],"~",yvar)
     }
+    temp
     if(covarCentering){
       temp=paste0(temp,"*(",paste0(xvars,collapse="+"),")")
     } else if(multiple){
@@ -190,7 +202,7 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep,
         fit=coxph(form1,data=md,robust=TRUE,cluster=subclass,weights=weights)
       }
       res=summary(fit)
-      result1=cbind(res$coef,res$conf.int)[yvar,,drop=FALSE]
+      result1=cbind(res$coef,res$conf.int)[1,,drop=FALSE]
       result3=as.data.frame(result1)[c(1,3:7,9,10)]
       names(result3)[6]="HR"
 
@@ -207,7 +219,8 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep,
     result=result[-1]
     class(result)="data.frame"
   }
-  rownames(result)=dep
+  dep
+  if(dep[1]!="") rownames(result)=dep
   report=""
   if(out$info$method=="subclass"){
     report="To estimate marginal effects after stratum matching, marginal mean weighting through stratification(MMWS) was used. "
@@ -224,7 +237,11 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep,
   } else{  # "survival"
     report=paste0(report,"a Cox proprotional harzards model ")
   }
+  if(dep[1]!=""){
   report=paste0(report,"with ",descNames(dep)," as the outcome and the '",yvar,"' ")
+  } else{
+  report=paste0(report,"with a survival object as the outcome and the '",yvar,"' ")
+  }
   if(multiple) {
     report=paste0(report,"and the covariates ")
     if(length(deselect)>0) {
@@ -290,14 +307,18 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep,
     if(x[pno]<0.0001){
       report=paste0(report,", p < .0001), ")
     }  else{
-      report=paste0(report,", p = ",round(x[pno],pdigits),"), ")
+      report=paste0(report,", p = ",sprintf(paste0("%0.",pdigits,"f"),x[pno]),"), ")
     }
 
 
     report=paste0(report,"indicating that the average effect of the '",
                   yvar,"' for those who received it is ")
     if(x[pno]<0.05){
-      report=paste0(report,"to ",ifelse(x[1]>=0,"increase","decrease")," '",dep[i],"'.")
+      if(dep[1]!=""){
+      report=paste0(report,"to ",ifelse(x[1]>=0,"increase","decrease")," '",dep[1],"'.")
+      } else{
+        report=paste0(report,"to ",ifelse(x[1]>=0,"increase","decrease")," event.")
+      }
     } else{
       report=paste0(report,"insignificant.")
     }

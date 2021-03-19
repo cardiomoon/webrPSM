@@ -4,12 +4,24 @@
 \alias{makePPTList_mnps}
 \title{Make PPT List with an object of class mnps}
 \usage{
-makePPTList_mnps(x, dep = "", adjustCovar = FALSE, covars = "", method = "GBM")
+makePPTList_mnps(
+  x,
+  dep = "",
+  time = "",
+  status = "",
+  adjustCovar = FALSE,
+  covars = "",
+  method = "GBM"
+)
 }
 \arguments{
 \item{x}{Character}
 
 \item{dep}{Character Name of dependent variable}
+
+\item{time}{Name of time variable}
+
+\item{status}{Name of status variable}
 
 \item{adjustCovar}{logical}
 
@@ -25,4 +37,7 @@ library(twang)
 data(AOD)
 x <- "mnps(treat~illact+crimjust+subprob+subdep+white,data=AOD,verbose=FALSE,n.trees=3000)"
 result=makePPTList_mnps(x,dep="suf12")
+data(colon,package="survival")
+x="mnps(rx~nodes+differ+adhere+obstruct+surg+extent+node4,data=colon,n.trees=3000)"
+result=makePPTList_mnps(x,time="time",status="status")
 }

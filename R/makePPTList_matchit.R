@@ -345,6 +345,8 @@ formula2vars=function(formula,allowInteraction=FALSE){
 #' make pptList with an object of class matchit
 #' @param x An object of class matchit
 #' @param depvar Variable name serves as dependent variables
+#' @param time  Name of time variable
+#' @param status Name of status variable
 #' @param seed Integer
 #' @param m.threshold numeric The default value is 0.1
 #' @param v.threshold numeric  The default value is 2
@@ -372,15 +374,19 @@ formula2vars=function(formula,allowInteraction=FALSE){
 #'    method="nearest",link='probit')
 #' result=makePPTList_matchit(x)
 #' result=makePPTList_matchit(x,depvar="re78",analyzeSens=TRUE)
-makePPTList_matchit=function(x,depvar=NULL,seed=1234,
+#' data("GBSG2",package="TH.data")
+#' x=matchit(horTh~age+menostat+tsize+tgrade+pnodes+progrec+estrec,data=GBSG2)
+#' result=makePPTList_matchit(x,time="time",status="cens")
+makePPTList_matchit=function(x,depvar=NULL,time="",status="",seed=1234,
                              m.threshold=0.1,v.threshold=2,
                              compare=TRUE,report=TRUE,
                              multiple=TRUE, depKind="continuous",
                              covarCentering=FALSE,withinSubclass=FALSE,
                              analyzeSens=FALSE){
-     # depvar=NULL;seed=1234;compare=TRUE;report=TRUE
+     # depvar=NULL;time="time";status="cens";seed=1234;compare=TRUE;report=TRUE
      # multiple=TRUE; depKind="continuous"
      # covarCentering=FALSE;withinSubclass=FALSE
+     # m.threshold=0.1;v.threshold=2
 
      `%!in%` <- Negate(`%in%`)
 
@@ -427,7 +433,7 @@ makePPTList_matchit=function(x,depvar=NULL,seed=1234,
 
      title=c(title,"Check Initial Imbalance")
      type=c(type,"Rcode")
-     temp=paste0("out<-matchit(",deparse(matched$formula),",data=",dfname,",method=NULL,distance='glm')\nsummary(out)")
+     temp=paste0("out<-matchit(",paste0(deparse(matched$formula),collapse=""),",data=",dfname,",method=NULL,distance='glm')\nsummary(out)")
      code=c(code,temp)
 
 
@@ -574,6 +580,23 @@ makePPTList_matchit=function(x,depvar=NULL,seed=1234,
        code=c(code,paste0("gammaRangeSearchFull(matched,dep='",depvar,"')"))
      }
      }
+     }
+     if((time!="")&(status!="")){
+       title=c(title,"Estimating Treatment Effect")
+       type=c(type,"Rcode")
+       #      temp=paste0(
+       # "fit1=lm(",depvar,"~",yvar,"+",paste0(xvars,collapse='+'),",data=match.data,weights=weights)\n",
+       # "coeftest(fit1,vcov.=vcovCL,cluster=~subclass)")
+       temp=paste0("effect=estimateEffect(matched,mode='survival',multiple=",multiple,
+                   ",time='",time,"',status='",status,"',covarCentering=",covarCentering,",withinSubclass=",withinSubclass,",print=FALSE);effect")
+       code=c(code,temp)
+
+       if(report){
+         title=c(title,"Report Treatment Effect")
+         type=c(type,"html")
+         code=c(code,"cat(attr(effect,'report'))")
+
+       }
      }
 
      data.frame(title,type,code,stringsAsFactors = FALSE)

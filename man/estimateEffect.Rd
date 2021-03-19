@@ -8,7 +8,9 @@ estimateEffect(
   out,
   mode = "continuous",
   multiple = TRUE,
-  dep,
+  dep = "",
+  time = "",
+  status = "",
   covarCentering = FALSE,
   withinSubclass = FALSE,
   digits = 2,
@@ -26,6 +28,10 @@ estimateEffect(
 \item{multiple}{logical Whether or not perform multiple regression}
 
 \item{dep}{Name of dependent variable}
+
+\item{time}{Name of time variable}
+
+\item{status}{Name of status variable}
 
 \item{covarCentering}{logical}
 

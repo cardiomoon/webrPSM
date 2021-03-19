@@ -6,7 +6,9 @@
 \usage{
 estimateEffectTwang(
   out,
-  dep,
+  dep = "",
+  time,
+  status,
   stop.method = "es.mean",
   adjustCovar = FALSE,
   method = "GBM"
@@ -16,6 +18,10 @@ estimateEffectTwang(
 \item{out}{An object of class ps}
 
 \item{dep}{Name of dependent variable}
+
+\item{time}{Name of time variable}
+
+\item{status}{Name of status variable}
 
 \item{stop.method}{A method or methods of measuring and summarizing balance across pretreatment variables.}
 
@@ -29,10 +35,16 @@ Estimate Treatment Effect
 \examples{
 library(twang)
 data(AOD)
+\dontrun{
 out=mnps(treat ~ illact + crimjust + subprob + subdep + white,data = AOD,
 stop.method=c("es.mean","ks.mean"),n.trees = 3000)
 estimateEffectTwang(out,dep="suf12")
 out1=mnps(treat ~ illact + crimjust + subprob + subdep + white,data = AOD,
 estimand="ATT",treatATT="community",stop.method=c("es.mean","ks.mean"),n.trees = 3000)
 estimateEffectTwang(out1,dep="suf12")
+data(colon,package="survival")
+fit=mnps(rx~nodes+differ+adhere+obstruct+surg+extent+node4,data=colon,n.trees=3000)
+result=estimateEffectTwang(fit,time="time",status="status")
+summary(result)
+}
 }

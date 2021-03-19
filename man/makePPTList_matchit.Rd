@@ -7,6 +7,8 @@
 makePPTList_matchit(
   x,
   depvar = NULL,
+  time = "",
+  status = "",
   seed = 1234,
   m.threshold = 0.1,
   v.threshold = 2,
@@ -23,6 +25,10 @@ makePPTList_matchit(
 \item{x}{An object of class matchit}
 
 \item{depvar}{Variable name serves as dependent variables}
+
+\item{time}{Name of time variable}
+
+\item{status}{Name of status variable}
 
 \item{seed}{Integer}
 
@@ -59,4 +65,7 @@ x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalo
    method="nearest",link='probit')
 result=makePPTList_matchit(x)
 result=makePPTList_matchit(x,depvar="re78",analyzeSens=TRUE)
+data("GBSG2",package="TH.data")
+x=matchit(horTh~age+menostat+tsize+tgrade+pnodes+progrec+estrec,data=GBSG2)
+result=makePPTList_matchit(x,time="time",status="cens")
 }
