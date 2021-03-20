@@ -50,6 +50,7 @@ getWeightedValues=function(x,digits=1){
   temp1=formula2vars(x$formula)
   xvars=temp1$xvars
   yvar=temp1$yvar
+  yvar
     result=call2param(x$call)
 
     orgData=eval(parse(text=result$data))
@@ -72,6 +73,7 @@ getWeightedValues=function(x,digits=1){
     form2=paste0("%",digits+2,".",digits,"f")
 
     control<-treat<-p<-c()
+    xvars
 
     for(i in seq_along(xvars)){
         xvar=xvars[i]
@@ -164,9 +166,11 @@ getWeightedValues=function(x,digits=1){
                 result=sprintf("%.3f",result)
             }
             p=c(p,result)
-            ratio=summatch[xvar,1]
+            xvalues=sort(unique(orgData[[xvar]]))
+            xvalues[2]
+            ratio=summatch[paste0(xvar,xvalues[2]),1]
             treat=c(treat,paste0(sprintf(form1,ntreat*ratio)," (",sprintf(form2,ratio*100),"%)"))
-            ratio=summatch[xvar,2]
+            ratio=summatch[paste0(xvar,xvalues[2]),2]
             control=c(control,paste0(sprintf(form1,ncontrol*ratio)," (",sprintf(form2,ratio*100),"%)"))
         }
     }
