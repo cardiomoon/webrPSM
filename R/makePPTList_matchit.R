@@ -549,7 +549,24 @@ makePPTList_matchit=function(x,depvar=NULL,time="",status="",seed=1234,
 
      }
 
-     if(!is.null(depvar)){
+
+     if((time!="")&(status!="")){
+       title=c(title,"Estimating Treatment Effect")
+       type=c(type,"Rcode")
+       #      temp=paste0(
+       # "fit1=lm(",depvar,"~",yvar,"+",paste0(xvars,collapse='+'),",data=match.data,weights=weights)\n",
+       # "coeftest(fit1,vcov.=vcovCL,cluster=~subclass)")
+       temp=paste0("effect=estimateEffect(matched,mode='survival',multiple=",multiple,
+                   ",time='",time,"',status='",status,"',covarCentering=",covarCentering,",withinSubclass=",withinSubclass,",print=FALSE);effect")
+       code=c(code,temp)
+
+       if(report){
+         title=c(title,"Report Treatment Effect")
+         type=c(type,"html")
+         code=c(code,"cat(attr(effect,'report'))")
+
+       }
+     } else if(!is.null(depvar)){
        # str(depvar)
        title=c(title,"Estimating Treatment Effect")
        type=c(type,"Rcode")
@@ -569,33 +586,16 @@ makePPTList_matchit=function(x,depvar=NULL,time="",status="",seed=1234,
        }
 
 
-     if(analyzeSens){
-     if(matchMethod %in% c("nearest","optimal","genetic")) {
-       title=c(title,"Sensitivity Analysis")
-       type=c(type,"Rcode")
-       code=c(code,paste0("gammaRangeSearch(matched,dep='",depvar,"')"))
-     } else if(matchMethod=="full"){
-       title=c(title,"Sensitivity Analysis")
-       type=c(type,"Rcode")
-       code=c(code,paste0("gammaRangeSearchFull(matched,dep='",depvar,"')"))
-     }
-     }
-     }
-     if((time!="")&(status!="")){
-       title=c(title,"Estimating Treatment Effect")
-       type=c(type,"Rcode")
-       #      temp=paste0(
-       # "fit1=lm(",depvar,"~",yvar,"+",paste0(xvars,collapse='+'),",data=match.data,weights=weights)\n",
-       # "coeftest(fit1,vcov.=vcovCL,cluster=~subclass)")
-       temp=paste0("effect=estimateEffect(matched,mode='survival',multiple=",multiple,
-                   ",time='",time,"',status='",status,"',covarCentering=",covarCentering,",withinSubclass=",withinSubclass,",print=FALSE);effect")
-       code=c(code,temp)
-
-       if(report){
-         title=c(title,"Report Treatment Effect")
-         type=c(type,"html")
-         code=c(code,"cat(attr(effect,'report'))")
-
+       if(analyzeSens){
+         if(matchMethod %in% c("nearest","optimal","genetic")) {
+           title=c(title,"Sensitivity Analysis")
+           type=c(type,"Rcode")
+           code=c(code,paste0("gammaRangeSearch(matched,dep='",depvar,"')"))
+         } else if(matchMethod=="full"){
+           title=c(title,"Sensitivity Analysis")
+           type=c(type,"Rcode")
+           code=c(code,paste0("gammaRangeSearchFull(matched,dep='",depvar,"')"))
+         }
        }
      }
 

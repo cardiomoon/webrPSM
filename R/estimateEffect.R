@@ -65,15 +65,19 @@ utils::globalVariables(c("id", "subclass"))
 #' x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
 #'    method="exact")
 #' estimateEffect(x,dep=c("re78"))
+#' data(GBSG2,package="TH.data")
+#' out=matchit(horTh~age+menostat+tsize+tgrade+pnodes+progrec+estrec,data=GBSG2)
+#' estimateEffect(out,mode="binary",dep="cens")
+#' estimateEffect(out,mode="survival",dep="cens",time="time",status="cens")
 #' }
 estimateEffect=function(out,mode="continuous",multiple=TRUE,dep="",time="",status="",
                         covarCentering=FALSE,withinSubclass=FALSE,
                         digits=2,sedigits=2,pdigits=4,se=TRUE,print=TRUE){
 
-  # mode="continuous";multiple=FALSE;dep="Y_C"
-  # mode="continuous";multiple=TRUE;dep="re78"
-  # covarCentering=FALSE;withinSubclass=FALSE;multiple=FALSE
-  # digits=2;sedigits=2;pdigits=4;se=TRUE;print=TRUE
+    # mode="continuous";multiple=FALSE;dep="cens";time="";status=""
+  # mode="survival";multiple=FALSE;dep="cens";time="time";status="cens"
+   # covarCentering=FALSE;withinSubclass=FALSE;multiple=FALSE
+   # digits=2;sedigits=2;pdigits=4;se=TRUE;print=TRUE
   # mode="survival";dep="";time="time";status="cens"
 
   temp1=formula2vars(out$formula)
@@ -101,7 +105,7 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep="",time="",statu
       x
     }
   }
-  if((dep[1]=="")&(time!="")&(status!="")) mode="survival"
+  if((time!="")&(status!="")) mode="survival"
 
   if(covarCentering){
     md[xvars]<-lapply(md[xvars],myCentering)
@@ -110,7 +114,7 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep="",time="",statu
   for(i in seq_along(dep)){
 
     if(mode=="survival"){
-      if(dep[i]==""){
+      if((time!="")&(status!="")){
           temp=paste0("survival::Surv(",time,",",status,")~",yvar)
       } else if("Surv" %in%class(md[[dep[i]]])){
           temp=paste0(dep[i],"~",yvar)
@@ -156,14 +160,14 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep="",time="",statu
       } else {
         fit <- lm(form1,data = md, weights = weights)
         if(out$info$method=="subclass"){
-          result1=coeftest(fit,vcov.=vcovHC)[yvar,,drop=FALSE]
-          result2=coefci(fit,vcov.=vcovHC)[yvar,,drop=FALSE]
+          result1=coeftest(fit,vcov.=vcovHC)[2,,drop=FALSE]
+          result2=coefci(fit,vcov.=vcovHC)[2,,drop=FALSE]
         } else if(replace) {
-          result1=coeftest(fit,vcov.=vcovCL,cluster=~subclass+id)[yvar,,drop=FALSE]
-          result2=coefci(fit,vcov.=vcovCL,cluster=~subclass+id)[yvar,,drop=FALSE]
+          result1=coeftest(fit,vcov.=vcovCL,cluster=~subclass+id)[2,,drop=FALSE]
+          result2=coefci(fit,vcov.=vcovCL,cluster=~subclass+id)[2,,drop=FALSE]
         } else{
-          result1=coeftest(fit,vcov.=vcovCL,cluster=~subclass)[yvar,,drop=FALSE]
-          result2=coefci(fit,vcov.=vcovCL,cluster=~subclass)[yvar,,drop=FALSE]
+          result1=coeftest(fit,vcov.=vcovCL,cluster=~subclass)[2,,drop=FALSE]
+          result2=coefci(fit,vcov.=vcovCL,cluster=~subclass)[2,,drop=FALSE]
         }
         result3=cbind(result1,result2)
         result3=as.data.frame(result3)
@@ -176,14 +180,14 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep="",time="",statu
         fit <- glm(form1,data = md, family=binomial(link="logit"),weights = weights)
       }
       if(out$info$method =="subclass"){
-        result1=coeftest(fit,vcov.=vcovHC,cluster=~subclass)[yvar,,drop=FALSE]
-        result2=coefci(fit,vcov.=vcovHC,cluster=~subclass)[yvar,,drop=FALSE]
+        result1=coeftest(fit,vcov.=vcovHC,cluster=~subclass)[2,,drop=FALSE]
+        result2=coefci(fit,vcov.=vcovHC,cluster=~subclass)[2,,drop=FALSE]
       } else if(replace){
-        result1=coeftest(fit,vcov.=vcovCL,cluster=~subclass+id)[yvar,,drop=FALSE]
-        result2=coefci(fit,vcov.=vcovCL,cluster=~subclass+id)[yvar,,drop=FALSE]
+        result1=coeftest(fit,vcov.=vcovCL,cluster=~subclass+id)[2,,drop=FALSE]
+        result2=coefci(fit,vcov.=vcovCL,cluster=~subclass+id)[2,,drop=FALSE]
       } else{
-        result1=coeftest(fit,vcov.=vcovCL,cluster=~subclass)[yvar,,drop=FALSE]
-        result2=coefci(fit,vcov.=vcovCL,cluster=~subclass)[yvar,,drop=FALSE]
+        result1=coeftest(fit,vcov.=vcovCL,cluster=~subclass)[2,,drop=FALSE]
+        result2=coefci(fit,vcov.=vcovCL,cluster=~subclass)[2,,drop=FALSE]
       }
       result3=cbind(result1,result2)
       result3=as.data.frame(result3)

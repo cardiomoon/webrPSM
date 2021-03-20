@@ -25,17 +25,16 @@ makePPTList_mnps=function(x,dep="",time="",status="",adjustCovar=FALSE,covars=""
     code=c(paste0("out<-",x),"summary(out)","p<-plot(out,plots=1)","p<-plot(out, plots = 2)",
            "p<-plot(out, plots = 3,pairwiseMax = FALSE)","print(plot(out, plots = 4))",
            "bal.table(out)","bal.table(out, collapse.to = 'covariate')","bal.table(out, collapse.to = 'stop.method')")
-    if(dep!=""){
-        title=c(title,"Estimation of Treatment Effect")
-        type=c(type,"Rcode")
-        code=c(code,paste0("estimateEffectTwang(out,dep='",dep,"',adjustCovar = ",adjustCovar,
-                           ",method='",method,"')"))
-
-    } else if((time!="")&(status!="")){
+    if(time!=""){
         title=c(title,"Estimation of Treatment Effect")
         type=c(type,"Rcode")
         code=c(code,paste0("summary(estimateEffectTwang(out,time='",time,"',status=',",status,"',adjustCovar = ",adjustCovar,
                            ",method='",method,"'))"))
+    } else{
+        title=c(title,"Estimation of Treatment Effect")
+        type=c(type,"Rcode")
+        code=c(code,paste0("estimateEffectTwang(out,dep='",dep,"',adjustCovar = ",adjustCovar,
+                           ",method='",method,"')"))
     }
 
     data.frame(title,type,code,stringsAsFactors = FALSE)
@@ -66,10 +65,11 @@ makePPTList_mnps=function(x,dep="",time="",status="",adjustCovar=FALSE,covars=""
 #'estimateEffectTwang(out1,dep="suf12")
 #'data(colon,package="survival")
 #'fit=mnps(rx~nodes+differ+adhere+obstruct+surg+extent+node4,data=colon,n.trees=3000)
-#'result=estimateEffectTwang(fit,time="time",status="status")
+#'result=estimateEffectTwang(fit,dep="status",time="time",status="status")
 #'summary(result)
+#'estimateEffectTwang(fit,dep="status")
 #'}
-estimateEffectTwang=function(out,dep="",time,status,stop.method="es.mean",adjustCovar=FALSE,method="GBM"){
+estimateEffectTwang=function(out,dep="",time="",status,stop.method="es.mean",adjustCovar=FALSE,method="GBM"){
 
     # out=ps.lalonde;stop.method = "es.mean";adjustCovar=TRUE;dep="re78";covars=""
     # dep="suf12"
@@ -77,7 +77,7 @@ estimateEffectTwang=function(out,dep="",time,status,stop.method="es.mean",adjust
     # method="GBM"
     # method="lm"
     # method="glm"
-    mode="continuous"
+     # dep="status";time="";stop.method="es.mean";adjustCovar=FALSE;method="GBM"
     if(class(out)=="ps"){
         yvar=out$gbm.obj$response.name
         xvars=out$gbm.obj$var.names
@@ -87,18 +87,24 @@ estimateEffectTwang=function(out,dep="",time,status,stop.method="es.mean",adjust
         xvars=attr(out[[1]][[1]]$gbm.obj$Terms,"term.labels")
         stop.method=out$stopMethods[1]
     }
-    if(dep!=""){
-       temp=paste0(dep,"~",yvar)
-    } else{
+    data1=out$data
+    if(time!=""){
        temp=paste0("survival::Surv(",time,",",status,")~",yvar)
        mode="survival"
+    } else{
+       temp=paste0(dep,"~",yvar)
+       if(length(unique(data1[[dep]]))==2) {
+           mode="binary"
+       } else{
+           mode="continuous"
+       }
     }
     if(adjustCovar) {
         temp=paste0(temp,"+",paste0(xvars,collapse="+"))
     }
 
     form1=as.formula(temp)
-    data1=out$data
+
 
     data1$w<-twang::get.weights(out,stop.method = stop.method)
     design.ps <- survey::svydesign(ids=~1, weights=~w, data=data1)
@@ -113,18 +119,26 @@ estimateEffectTwang=function(out,dep="",time,status,stop.method="es.mean",adjust
             mylist=list()
 
             for(i in 1:no){
+                if(mode=="continuous"){
                 temp1=paste0("svyglm(",temp,",design=design.ps,contrast=list(",yvar,"=contr.treatment(n=",no,",base=",i,")))")
+                } else{
+                temp1=paste0("svyglm(",temp,",design=design.ps,family=quasibinomial(),contrast=list(",yvar,"=contr.treatment(n=",no,",base=",i,")))")
+                }
                 glm=eval(parse(text=temp1))
                 result=as.data.frame(summary(glm)$coeff)
                 result$OR=exp(glm$coef)
-                result$lower=confint(glm)[,1]
-                result$upper=confint(glm)[,2]
+                result$lower=exp(confint(glm)[,1])
+                result$upper=exp(confint(glm)[,2])
                 row.names(result)=c("(Intercept)",paste0(txnames[-i],"-",txnames[i]))
                 mylist[[i]]=result
             }
             mylist
             names(mylist)=paste0("Ref : ", levels(data1[[yvar]]))
+            if(mode=="continuous"){
             temp1=paste0("svyglm(",temp,",design=design.ps,contrast=list(",yvar,"=contr.sum))")
+            } else{
+                temp1=paste0("svyglm(",temp,",design=design.ps,family=quasibinomial(),contrast=list(",yvar,"=contr.sum))")
+            }
             glm2=eval(parse(text=temp1))
             result2=as.data.frame(summary(glm2)$coeff)
             result3=c(-sum(coef(glm2)[-1]),sqrt(c(-1,-1) %*% summary(glm2)$cov.scaled[-1,-1] %*% c(-1,-1)),
@@ -144,8 +158,8 @@ estimateEffectTwang=function(out,dep="",time,status,stop.method="es.mean",adjust
             glm=svyglm(form1,design=design.ps)
             result=as.data.frame(summary(glm)$coeff)
             result$OR=exp(glm$coef)
-            result$lower=confint(glm)[,1]
-            result$upper=confint(glm)[,2]
+            result$lower=exp(confint(glm)[,1])
+            result$upper=exp(confint(glm)[,2])
             result
         }
     } else if(method=="lm"){

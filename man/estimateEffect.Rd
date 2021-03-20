@@ -93,5 +93,9 @@ estimateEffect(out,dep=c("Y_C"))
 x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
    method="exact")
 estimateEffect(x,dep=c("re78"))
+data(GBSG2,package="TH.data")
+out=matchit(horTh~age+menostat+tsize+tgrade+pnodes+progrec+estrec,data=GBSG2)
+estimateEffect(out,mode="binary",dep="cens")
+estimateEffect(out,mode="survival",dep="cens",time="time",status="cens")
 }
 }

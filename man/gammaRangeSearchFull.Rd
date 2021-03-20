@@ -22,9 +22,11 @@ Find significant gamma range for full matching
 library(MatchIt)
 out=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",method="full")
 tail(gammaRangeSearchFull(out,dep="y"))
+\dontrun{
 out=matchit(formula=treat~V1+V2+V3,data=simData,link="linear.logit",estimand="ATC",method="full")
 tail(gammaRangeSearchFull(out,dep="y"))
 out=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
    method="full")
 tail(gammaRangeSearchFull(out,dep="re78"))
+}
 }

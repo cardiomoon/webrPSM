@@ -7,7 +7,7 @@
 estimateEffectTwang(
   out,
   dep = "",
-  time,
+  time = "",
   status,
   stop.method = "es.mean",
   adjustCovar = FALSE,
@@ -44,7 +44,8 @@ estimand="ATT",treatATT="community",stop.method=c("es.mean","ks.mean"),n.trees =
 estimateEffectTwang(out1,dep="suf12")
 data(colon,package="survival")
 fit=mnps(rx~nodes+differ+adhere+obstruct+surg+extent+node4,data=colon,n.trees=3000)
-result=estimateEffectTwang(fit,time="time",status="status")
+result=estimateEffectTwang(fit,dep="status",time="time",status="status")
 summary(result)
+estimateEffectTwang(fit,dep="status")
 }
 }

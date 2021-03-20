@@ -38,8 +38,10 @@ estimate effect based on IPW(inverse probability weight)
 \examples{
 mydata=addIPW(treat~x1+x2,data=simData2)
 estimateEffectContinuous(mydata,dep="y",weights="IPW")
+\dontrun{
 estimateEffectContinuous(mydata,dep="y")
 data(lalonde,package="MatchIt")
 mydata1=addIPW(age~educ+race+married, data=lalonde)
 estimateEffectContinuous(mydata1,dep="re78",weights="IPW")
+}
 }

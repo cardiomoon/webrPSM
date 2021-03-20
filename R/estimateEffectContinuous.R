@@ -146,10 +146,12 @@ balanceCheck=function(data,xvars=NULL,treatvar=NULL){
 #' @examples
 #' mydata=addIPW(treat~x1+x2,data=simData2)
 #' estimateEffectContinuous(mydata,dep="y",weights="IPW")
+#' \dontrun{
 #' estimateEffectContinuous(mydata,dep="y")
 #' data(lalonde,package="MatchIt")
 #' mydata1=addIPW(age~educ+race+married, data=lalonde)
 #' estimateEffectContinuous(mydata1,dep="re78",weights="IPW")
+#' }
 estimateEffectContinuous=function(data,dep,xvars=NULL,treatvar=NULL,seed=1234,probs=0.1*(1:9),num=10000,weights=NULL){
     # data=addIPW(simData2,xvars=c("x1","x2"),treatvar="treat")
      # dep="re78"
