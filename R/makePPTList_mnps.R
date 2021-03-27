@@ -21,7 +21,7 @@ makePPTList_mnps=function(x,dep="",time="",status="",adjustCovar=FALSE,covars=""
     title=c("Matching with twang::mnps()","Summary","Balance Check","Probability of Receiving Each Treatment",
             "Balance Check","t and chi-squared p-value",
             "Balance Table(1)","Balance Table(2)","Balance Table(3)")
-    type=c("Pre","Rcode","plot","plot","plot","plot","Rcode","Rcode","Rcode")
+    type=c("out","Rcode","plot","plot","plot","plot","Rcode","Rcode","Rcode")
     code=c(paste0("out<-",x),"summary(out)","p<-plot(out,plots=1)","p<-plot(out, plots = 2)",
            "p<-plot(out, plots = 3,pairwiseMax = FALSE)","print(plot(out, plots = 4))",
            "bal.table(out)","bal.table(out, collapse.to = 'covariate')","bal.table(out, collapse.to = 'stop.method')")
