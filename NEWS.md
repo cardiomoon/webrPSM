@@ -1,3 +1,9 @@
+# webrPSM ver 0.1.9
+===================
+(2021-Mar-27)
+
+* new function makePPTList_twangCont added
+
 # webrPSM ver 0.1.8
 ===================
 (2021-Mar-17)

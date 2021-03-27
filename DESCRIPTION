@@ -1,7 +1,7 @@
 Package: webrPSM
 Type: Package
 Title: Propensity Score Matching for Web-R
-Version: 0.1.8
+Version: 0.1.9
 Imports:
    MatchIt,
    lmtest,
@@ -27,6 +27,7 @@ Imports:
    rlang,
    egg,
    twang,
+   twangContinuous,
    TH.data,
    sensitivitymw,
    sensitivityfull
