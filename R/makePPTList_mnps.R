@@ -11,20 +11,28 @@
 #' library(twang)
 #' data(AOD)
 #' x <- "mnps(treat~illact+crimjust+subprob+subdep+white,data=AOD,verbose=FALSE,n.trees=3000)"
+#' x <- "mnps(treat~illact+crimjust+subprob+subdep+white,data=AOD,estimand='ATT',treatATT='community',verbose=FALSE,n.trees=3000)"
 #' result=makePPTList_mnps(x,dep="suf12")
 #' data(colon,package="survival")
 #' x="mnps(rx~nodes+differ+adhere+obstruct+surg+extent+node4,data=colon,n.trees=3000)"
 #' result=makePPTList_mnps(x,time="time",status="status")
 makePPTList_mnps=function(x,dep="",time="",status="",adjustCovar=FALSE,covars="",method="GBM"){
     # dep="suf12";adjustCovar=FALSE;covars="";method="GBM"
-    #out<-eval(parse(text=x))
-    title=c("Matching with twang::mnps()","Summary","Balance Check","Probability of Receiving Each Treatment",
+    out<-eval(parse(text=x))
+    title=c("Matching with twang::mnps()","Summary","Balance Check")
+    if(out$estimand=="ATE") title=c(title,"Probability of Receiving Each Treatment")
+    title=c(title,
             "Balance Check","t and chi-squared p-value",
             "Balance Table(1)","Balance Table(2)","Balance Table(3)")
-    type=c("out","Rcode","plot","plot","plot","plot","Rcode","Rcode","Rcode")
-    code=c(paste0("out<-",x),"summary(out)","p<-plot(out,plots=1)","p<-plot(out, plots = 2)",
+
+    type=c("out","Rcode","plot")
+    if(out$estimand=="ATE") type=c(type,"plot")
+    type=c(type,"plot","plot","Rcode","Rcode","Rcode")
+    code=c(paste0("out<-",x),"summary(out)","p<-plot(out,plots=1)")
+    if(out$estimand=="ATE") code=c(code,"p<-plot(out, plots = 2)")
+    code=c(code,
            "p<-plot(out, plots = 3,pairwiseMax = FALSE)","print(plot(out, plots = 4))",
-           "bal.table(out)","bal.table(out, collapse.to = 'covariate')","bal.table(out, collapse.to = 'stop.method')")
+           "twang::bal.table(out)","twang::bal.table(out, collapse.to = 'covariate')","twang::bal.table(out, collapse.to = 'stop.method')")
     if(time!=""){
         title=c(title,"Estimation of Treatment Effect")
         type=c(type,"Rcode")

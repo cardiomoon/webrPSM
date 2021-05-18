@@ -21,7 +21,7 @@ makePPTList_twangCont=function(x,dep="",seed=1234){
 
     type=c("Rcode","out","plot","Rcode","Rcode","plot")
     code=c(paste0("set.seed(",seed,")"),paste0("mod<-",x),"print(plot(mod,plots='optimize'))","summary(mod)",
-           "bal.table(mod, digits = 3)","print(plot(mod, plots='es'))")
+           "twangContinuous::bal.table(mod, digits = 3)","print(plot(mod, plots='es'))")
 
     if(dep!=""){
         title=c(title,"Attach weights","Make design object","Outcome Model","Estimating causal Effect")
