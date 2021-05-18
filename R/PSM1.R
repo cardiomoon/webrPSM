@@ -229,7 +229,7 @@ compareLove.plot=function(out,stats=c("m")){
   result=call2param(out$call)
   data1<-eval(parse(text=result$data))
   out1=MatchIt::matchit(out$formula,data=data1)
-  sample.names = c(paste0(str_to_title(out$info$method)," Matching"), "NN Matching", "Original")
+  sample.names = c( "Original",paste0(str_to_title(out$info$method)," Matching"),"NN Matching")
   cobalt::love.plot(out, stats = stats, poly = 2, abs = TRUE,
             weights = list(nn = out1),
             drop.distance = TRUE, thresholds = c(m = .1),
