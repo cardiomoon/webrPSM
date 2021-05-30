@@ -58,7 +58,7 @@ makePPTList_mnps=function(x,dep="",time="",status="",adjustCovar=FALSE,covars=""
 #' @param method Method of PS estimate. One of c("GBM","lm","glm","chisq").
 #' @importFrom twang get.weights
 #' @importFrom survey svydesign svyglm
-#' @importFrom stats confint contr.sum
+#' @importFrom stats confint contr.sum relevel
 #' @export
 #' @examples
 #'library(twang)
@@ -95,6 +95,9 @@ estimateEffectTwang=function(out,dep="",time="",status,stop.method="es.mean",adj
         stop.method=out$stopMethods[1]
     }
     data1=out$data
+    if((class(out)=="mnps")&(out$estimand=="ATT")){
+        data1[[yvar]]=relevel(data1[[yvar]],ref=out$treatATT)
+    }
     if(time!=""){
        temp=paste0("survival::Surv(",time,",",status,")~",yvar)
        mode="survival"
@@ -162,6 +165,7 @@ estimateEffectTwang=function(out,dep="",time="",status,stop.method="es.mean",adj
             result= mylist
 
         } else {
+
             glm=svyglm(form1,design=design.ps)
             result=as.data.frame(summary(glm)$coeff)
             result$OR=exp(glm$coef)

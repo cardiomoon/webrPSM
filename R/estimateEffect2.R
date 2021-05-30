@@ -3,6 +3,8 @@
 #' @param mode One of c("continuous","binary","survival")
 #' @param multiple logical Whether or not perform multiple regression
 #' @param dep Name of dependent variable
+#' @param time Name of time variable
+#' @param status Name of status variable
 #' @param covarCentering logical
 #' @param withinSubclass logical
 #' @param seed numeric
@@ -29,8 +31,9 @@
 #'             link = 'linear.logit', caliper = .1, ratio = 3, replace = TRUE)
 #' estimateEffect2(out,dep="Y_C",multiple=FALSE)
 #' estimateEffect2(out,dep="Y_B",mode="binary",multiple=TRUE)
+#' estimateEffect2(out,dep="Y_S",mode="survival",multiple=TRUE)
 #' }
-estimateEffect2=function(out,mode="continuous",multiple=TRUE,dep,
+estimateEffect2=function(out,mode="continuous",multiple=TRUE,dep,time="",status="",
                          covarCentering=FALSE,withinSubclass=FALSE,seed=1,
                          digits=2,sedigits=2,pdigits=4,se=TRUE,print=TRUE){
 # mode="continuous";multiple=FALSE;dep="Y_C"
@@ -70,7 +73,14 @@ est_fun2=function(data,i,multiple=FALSE,mode="continuous"){
      md_boot=match.data(md2)
 
      if(mode=="survival"){
-         temp=paste0("Surv(",dep,")~",yvar)
+         if((time!="")&(status!="")){
+             temp=paste0("survival::Surv(",time,",",status,")~",yvar)
+         } else if("Surv" %in% class(data[[dep]])){
+             temp=paste0(dep[i],"~",yvar)
+         } else{
+             temp=paste0("survival::Surv(",dep,")~",yvar)
+         }
+         # temp=paste0("Surv(",dep,")~",yvar)
      } else{
          temp=paste0(dep,"~",yvar)
      }
@@ -100,6 +110,15 @@ est_fun2=function(data,i,multiple=FALSE,mode="continuous"){
          #Return marginal odds ratio
          return(Odds1 / Odds0)
 
+     } else if(mode=="survival"){
+         cox_fit_boot <- coxph(as.formula(temp), data = md_boot)
+
+         #Compute the marginal HR by exponentiating the coefficient
+         #on treatment
+         HR <- exp(coef(cox_fit_boot)[yvar])
+
+         #Return the HR
+         return(HR)
      }
 
 
@@ -115,7 +134,14 @@ est_fun<-function(pairs,i,multiple=FALSE,mode="continuous"){
      md_boot<-md[ids,]
 
      if(mode=="survival"){
-         temp=paste0("Surv(",dep,")~",yvar)
+         if((time!="")&(status!="")){
+             temp=paste0("survival::Surv(",time,",",status,")~",yvar)
+         } else if("Surv" %in% class(md_boot[[dep]])){
+             temp=paste0(dep[i],"~",yvar)
+         } else{
+             temp=paste0("survival::Surv(",dep,")~",yvar)
+         }
+         # temp=paste0("Surv(",dep,")~",yvar)
      } else{
          temp=paste0(dep,"~",yvar)
      }

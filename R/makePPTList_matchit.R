@@ -532,9 +532,11 @@ makePPTList_matchit=function(x,depvar=NULL,time="",status="",seed=1234,
        title=c(title,"Compare Balance Table")
        type=c(type,"Rcode")
        code=c(code,"makeCompareBalTab(matched)")
+       if(matchMethod!='subclass'){
        title=c(title,"compare Love Plot")
        type=c(type,"ggplot")
        code=c(code,"compareLove.plot(matched)")
+       }
 
      }
 

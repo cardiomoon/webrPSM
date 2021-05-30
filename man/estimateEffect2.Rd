@@ -9,6 +9,8 @@ estimateEffect2(
   mode = "continuous",
   multiple = TRUE,
   dep,
+  time = "",
+  status = "",
   covarCentering = FALSE,
   withinSubclass = FALSE,
   seed = 1,
@@ -27,6 +29,10 @@ estimateEffect2(
 \item{multiple}{logical Whether or not perform multiple regression}
 
 \item{dep}{Name of dependent variable}
+
+\item{time}{Name of time variable}
+
+\item{status}{Name of status variable}
 
 \item{covarCentering}{logical}
 
@@ -60,5 +66,6 @@ out <- matchit(A ~ X1 + X2 + X3 + X4 + X5 + X6 + X7 + X8 + X9, data = exData,
             link = 'linear.logit', caliper = .1, ratio = 3, replace = TRUE)
 estimateEffect2(out,dep="Y_C",multiple=FALSE)
 estimateEffect2(out,dep="Y_B",mode="binary",multiple=TRUE)
+estimateEffect2(out,dep="Y_S",mode="survival",multiple=TRUE)
 }
 }
