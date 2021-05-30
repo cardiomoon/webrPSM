@@ -65,13 +65,13 @@ makePPTList_mnps=function(x,dep="",time="",status="",adjustCovar=FALSE,covars=""
 #'data(AOD)
 #'\dontrun{
 #'out=mnps(treat ~ illact + crimjust + subprob + subdep + white,data = AOD,
-#'stop.method=c("es.mean","ks.mean"),n.trees = 3000)
+#'stop.method=c("es.mean","ks.mean"),verbose=FALSE,n.trees = 3000)
 #'estimateEffectTwang(out,dep="suf12")
 #'out1=mnps(treat ~ illact + crimjust + subprob + subdep + white,data = AOD,
-#'estimand="ATT",treatATT="community",stop.method=c("es.mean","ks.mean"),n.trees = 3000)
+#'estimand="ATT",treatATT="community",stop.method=c("es.mean","ks.mean"),verbose=FALSE,n.trees = 3000)
 #'estimateEffectTwang(out1,dep="suf12")
-#'data(colon,package="survival")
-#'fit=mnps(rx~nodes+differ+adhere+obstruct+surg+extent+node4,data=colon,n.trees=3000)
+#'data(cancer,package="survival")
+#'fit=mnps(rx~nodes+differ+adhere+obstruct+surg+extent+node4,data=colon,verbose=FALSE,n.trees=3000)
 #'result=estimateEffectTwang(fit,dep="status",time="time",status="status")
 #'summary(result)
 #'estimateEffectTwang(fit,dep="status")
@@ -136,9 +136,11 @@ estimateEffectTwang=function(out,dep="",time="",status,stop.method="es.mean",adj
                 }
                 glm=eval(parse(text=temp1))
                 result=as.data.frame(summary(glm)$coeff)
-                result$OR=exp(glm$coef)
-                result$lower=exp(confint(glm)[,1])
-                result$upper=exp(confint(glm)[,2])
+                if(mode=="binary"){
+                    result$OR=exp(glm$coef)
+                    result$lower=exp(confint(glm)[,1])
+                    result$upper=exp(confint(glm)[,2])
+                }
                 row.names(result)=c("(Intercept)",paste0(txnames[-i],"-",txnames[i]))
                 mylist[[i]]=result
             }
@@ -154,9 +156,11 @@ estimateEffectTwang=function(out,dep="",time="",status,stop.method="es.mean",adj
             result3=c(-sum(coef(glm2)[-1]),sqrt(c(-1,-1) %*% summary(glm2)$cov.scaled[-1,-1] %*% c(-1,-1)),
                       NA,NA)
             result4=rbind(result2,result3)
+            if(mode=="binary"){
             result4$OR=exp(result4$Estimate)
             result4$lower=exp(result4[[1]]-1.96*result4[[2]])
             result4$upper=exp(result4[[1]]+1.96*result4[[2]])
+            }
 
             rownames(result4)=c("(Intercept)",levels(out$data[[yvar]]))
             result4
@@ -168,9 +172,11 @@ estimateEffectTwang=function(out,dep="",time="",status,stop.method="es.mean",adj
 
             glm=svyglm(form1,design=design.ps)
             result=as.data.frame(summary(glm)$coeff)
+            if(mode=="binary"){
             result$OR=exp(glm$coef)
             result$lower=exp(confint(glm)[,1])
             result$upper=exp(confint(glm)[,2])
+            }
             result
         }
     } else if(method=="lm"){

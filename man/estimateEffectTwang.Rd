@@ -37,13 +37,13 @@ library(twang)
 data(AOD)
 \dontrun{
 out=mnps(treat ~ illact + crimjust + subprob + subdep + white,data = AOD,
-stop.method=c("es.mean","ks.mean"),n.trees = 3000)
+stop.method=c("es.mean","ks.mean"),verbose=FALSE,n.trees = 3000)
 estimateEffectTwang(out,dep="suf12")
 out1=mnps(treat ~ illact + crimjust + subprob + subdep + white,data = AOD,
-estimand="ATT",treatATT="community",stop.method=c("es.mean","ks.mean"),n.trees = 3000)
+estimand="ATT",treatATT="community",stop.method=c("es.mean","ks.mean"),verbose=FALSE,n.trees = 3000)
 estimateEffectTwang(out1,dep="suf12")
-data(colon,package="survival")
-fit=mnps(rx~nodes+differ+adhere+obstruct+surg+extent+node4,data=colon,n.trees=3000)
+data(cancer,package="survival")
+fit=mnps(rx~nodes+differ+adhere+obstruct+surg+extent+node4,data=colon,verbose=FALSE,n.trees=3000)
 result=estimateEffectTwang(fit,dep="status",time="time",status="status")
 summary(result)
 estimateEffectTwang(fit,dep="status")
