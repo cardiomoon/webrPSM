@@ -140,6 +140,9 @@ estimateEffectTwang=function(out,dep="",time="",status,stop.method="es.mean",adj
                     result$OR=exp(glm$coef)
                     result$lower=exp(confint(glm)[,1])
                     result$upper=exp(confint(glm)[,2])
+                } else{
+                    result$lower=confint(glm)[,1]
+                    result$upper=confint(glm)[,2]
                 }
                 row.names(result)=c("(Intercept)",paste0(txnames[-i],"-",txnames[i]))
                 mylist[[i]]=result
@@ -160,6 +163,9 @@ estimateEffectTwang=function(out,dep="",time="",status,stop.method="es.mean",adj
             result4$OR=exp(result4$Estimate)
             result4$lower=exp(result4[[1]]-1.96*result4[[2]])
             result4$upper=exp(result4[[1]]+1.96*result4[[2]])
+            } else{
+                result4$lower=result4[[1]]-1.96*result4[[2]]
+                result4$upper=result4[[1]]+1.96*result4[[2]]
             }
 
             rownames(result4)=c("(Intercept)",levels(out$data[[yvar]]))
@@ -176,6 +182,9 @@ estimateEffectTwang=function(out,dep="",time="",status,stop.method="es.mean",adj
             result$OR=exp(glm$coef)
             result$lower=exp(confint(glm)[,1])
             result$upper=exp(confint(glm)[,2])
+            } else{
+                result$lower=confint(glm)[,1]
+                result$upper=confint(glm)[,2]
             }
             result
         }
