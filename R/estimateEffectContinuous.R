@@ -209,6 +209,9 @@ zelig2est=function(out,probs=0.1*(1:9),num=10000){
 #' Draw plot comparing IPW and linear regression
 #' @param data A data.frame as a result of addIPW()
 #' @param dep Name of dependent variable
+#' @param xvars Names of covariates
+#' @param treatvar Name of treatment variable
+#' @param weights Name of weight variable
 #' @param seed A single integer
 #' @param print logical
 #' @importFrom dplyr bind_rows
@@ -218,7 +221,7 @@ zelig2est=function(out,probs=0.1*(1:9),num=10000){
 #' set.seed(1234)
 #' mydata=addIPW(treat~x1+x2,data=simData2)
 #' plotCompareEffects(mydata)
-plotCompareEffects=function(data,dep="y",seed=1234,print=TRUE){
+plotCompareEffects=function(data,dep="y",xvars=NULL,treatvar=NULL,weights="IPW",seed=1234,print=TRUE){
     # if(is.null(xvars)) xvars=attr(data,"xvars")
     # if(is.null(treatvar)) treatvar=attr(data,"treatvar")
     # set.seed(seed)
@@ -227,11 +230,11 @@ plotCompareEffects=function(data,dep="y",seed=1234,print=TRUE){
     # IPW_estimate=zelig2est(zelig(y~treat+x1+x2,data=mydata,model="ls",cite=FALSE))
     # data=addIPW(simData2,xvars=c("x1","x2"),treatvar="treat")
     # dep="y";seed=1234;print=TRUE
-    OLS_estimate=estimateEffectContinuous(data,dep=dep,seed=seed)
-    IPW_estimate=estimateEffectContinuous(data,dep=dep,weights="IPW",seed=seed)
+    OLS_estimate=estimateEffectContinuous(data,dep=dep,xvars=xvars,treatvar=treatvar,seed=seed)
+    IPW_estimate=estimateEffectContinuous(data,dep=dep,xvars=xvars,treatvar=treatvar,weights=weights,seed=seed)
 
     df=bind_rows(OLS_estimate %>% mutate(model="OLS"),
-             IPW_estimate %>% mutate(model="IPW"))
+             IPW_estimate %>% mutate(model="PS"))
     df
     p<-ggplot(df,aes_string(x="treat",y="est",fill="model"))+
     geom_line(aes_string(color="model"))+

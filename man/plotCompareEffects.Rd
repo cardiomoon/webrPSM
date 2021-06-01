@@ -4,12 +4,26 @@
 \alias{plotCompareEffects}
 \title{Draw plot comparing IPW and linear regression}
 \usage{
-plotCompareEffects(data, dep = "y", seed = 1234, print = TRUE)
+plotCompareEffects(
+  data,
+  dep = "y",
+  xvars = NULL,
+  treatvar = NULL,
+  weights = "IPW",
+  seed = 1234,
+  print = TRUE
+)
 }
 \arguments{
 \item{data}{A data.frame as a result of addIPW()}
 
 \item{dep}{Name of dependent variable}
+
+\item{xvars}{Names of covariates}
+
+\item{treatvar}{Name of treatment variable}
+
+\item{weights}{Name of weight variable}
 
 \item{seed}{A single integer}
 

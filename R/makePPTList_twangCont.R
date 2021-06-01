@@ -53,6 +53,10 @@ makePPTList_twangCont=function(x,dep="",seed=1234){
     yvar=temp2[1]
     temp3=unlist(strsplit(temp2[2],","))[2]
     dataname=unlist(strsplit(temp3,"="))[2]
+    temp4=unlist(strsplit(temp2[2],","))[1]
+    xvars=unlist(strsplit(temp4,"+",fixed=TRUE))
+    xvars
+    yvar
 
     title=c("Set seed number","PS estimation","Assessing Diagnostics","Summary of model","Balance Assessment","Balance plot")
 
@@ -67,6 +71,12 @@ makePPTList_twangCont=function(x,dep="",seed=1234){
                paste0("design.ps <- svydesign(ids=~1, weights=~wts, data=",dataname,")"),
                paste0("outcome.model <- svyglm(",dep,"~",yvar,",design = design.ps, family = gaussian())"),
                "summary(outcome.model)","confint(outcome.model)")
+        title=c(title,"Dose-Response Estimate")
+        type=c(type,"ggplot")
+        temp=paste0("plotCompareEffects(",dataname,",dep='",dep,"',xvars=",paste0("c('",paste0(xvars,collapse="','"),"')"),
+                    ",treatvar='",yvar,"',weights='wts')")
+        code=c(code,temp)
+
     }
     data.frame(title,type,code)
 }
