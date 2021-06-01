@@ -316,7 +316,15 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep="",time="",statu
 
 
     report=paste0(report,"indicating that the average effect of the '",
-                  yvar,"' for those who received it is ")
+                  yvar,"'")
+    if(out$estimand=="ATT") {
+      report=paste0(report,"for those who received it")
+    } else if(out$estimand=="ATE") {
+      report=paste0(report,"for the population")
+    } else if(out$estimand=="ATM") {
+      report=paste0(report,"in the remaining matched sample")
+    }
+    report=paste0(report," is ")
     if(x[pno]<0.05){
       if(dep[1]!=""){
       report=paste0(report,"to ",ifelse(x[1]>=0,"increase","decrease")," '",dep[1],"'.")
