@@ -42,6 +42,8 @@ balance.plot=function(x){
 #' @importFrom survey svydesign svyglm
 #' @export
 #' @examples
+#' library(twangContinuous)
+#' library(survey)
 #' x="ps.cont( treat ~ x1 + x2,data=simData2,n.trees=5000)"
 #' result=makePPTList_twangCont(x,dep="y")
 #' x="ps.cont(tss_0~sfs8p_0+sati_0+sp_sm_0+recov_0+subsgrps_n+treat,data=dat,n.trees = 500)"
