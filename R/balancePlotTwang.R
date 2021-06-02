@@ -2,7 +2,6 @@
 #' @param out An object of class mnps
 #' @param show.label logical Whether or not show label
 #' @param show.legend logical Whether or not show legend
-#' @importFrom twang bal.table
 #' @importFrom ggplot2 aes_string facet_grid
 #' @examples
 #' library(twang)
