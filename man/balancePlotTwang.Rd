@@ -4,7 +4,12 @@
 \alias{balancePlotTwang}
 \title{Draw balance Plot}
 \usage{
-balancePlotTwang(out, show.label = FALSE, show.legend = FALSE)
+balancePlotTwang(
+  out,
+  show.label = FALSE,
+  show.legend = FALSE,
+  rowByGroup = TRUE
+)
 }
 \arguments{
 \item{out}{An object of class mnps}
@@ -12,6 +17,8 @@ balancePlotTwang(out, show.label = FALSE, show.legend = FALSE)
 \item{show.label}{logical Whether or not show label}
 
 \item{show.legend}{logical Whether or not show legend}
+
+\item{rowByGroup}{logical If true, draw row by group}
 }
 \description{
 Draw balance Plot
@@ -19,6 +26,8 @@ Draw balance Plot
 \examples{
 library(twang)
 data(AOD)
+out=mnps(treat~illact+crimjust+subprob+subdep+white,data=AOD,n.trees=3000,verbose=FALSE)
+balancePlotTwang(out)
 out=mnps(treat~illact+crimjust+subprob+subdep+white,data=AOD,n.trees=3000,verbose=FALSE,
 stop.method=c("es.mean","ks.max"))
 balancePlotTwang(out)
