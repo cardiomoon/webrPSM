@@ -8,6 +8,7 @@
 #' @param method Method of PS estimate. One of c("GBM","lm","glm","chisq")
 #' @export
 #' @examples
+#' \dontrun{
 #' library(twang)
 #' data(AOD)
 #' x <- "mnps(treat~illact+crimjust+subprob+subdep+white,data=AOD,verbose=FALSE,n.trees=3000)"
@@ -15,6 +16,7 @@
 #' data(cancer,package="survival")
 #' x="mnps(rx~nodes+differ+adhere+obstruct+surg+extent+node4,data=colon,n.trees=3000)"
 #' result=makePPTList_mnps(x,time="time",status="status")
+#' }
 makePPTList_mnps=function(x,dep="",time="",status="",adjustCovar=FALSE,covars="",method="GBM"){
     # dep="suf12";adjustCovar=FALSE;covars="";method="GBM"
     out<-eval(parse(text=x))
@@ -30,7 +32,7 @@ makePPTList_mnps=function(x,dep="",time="",status="",adjustCovar=FALSE,covars=""
     code=c(paste0("out<-",x),"summary(out)","p<-plot(out,plots=1)")
     if(out$estimand=="ATE") code=c(code,"p<-plot(out, plots = 2)")
     code=c(code,
-           "p<-plot(out, plots = 3,pairwiseMax = FALSE)","print(plot(out, plots = 4))",
+           "balancePlotTwang(out)","print(plot(out, plots = 4))",
            "twang::bal.table(out)","twang::bal.table(out, collapse.to = 'covariate')","twang::bal.table(out, collapse.to = 'stop.method')")
     if(time!=""){
         title=c(title,"Estimation of Treatment Effect")

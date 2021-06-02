@@ -1,3 +1,10 @@
+# webrPSM ver 0.2.0
+===================
+(2021-June-2)
+
+* new functions balancePlot and balancePlotTwang added
+
+
 # webrPSM ver 0.1.9
 ===================
 (2021-Mar-27)

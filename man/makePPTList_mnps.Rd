@@ -33,6 +33,7 @@ makePPTList_mnps(
 Make PPT List with an object of class mnps
 }
 \examples{
+\dontrun{
 library(twang)
 data(AOD)
 x <- "mnps(treat~illact+crimjust+subprob+subdep+white,data=AOD,verbose=FALSE,n.trees=3000)"
@@ -40,4 +41,5 @@ result=makePPTList_mnps(x,dep="suf12")
 data(cancer,package="survival")
 x="mnps(rx~nodes+differ+adhere+obstruct+surg+extent+node4,data=colon,n.trees=3000)"
 result=makePPTList_mnps(x,time="time",status="status")
+}
 }
