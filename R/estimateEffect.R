@@ -227,7 +227,14 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep="",time="",statu
   if(dep[1]!="") rownames(result)=dep
   report=""
   if(out$info$method=="subclass"){
-    report="To estimate marginal effects after stratum matching, marginal mean weighting through stratification(MMWS) was used. "
+    if(withinSubclass){
+      report=paste0("To estimate marginal effects after stratum matching, we fit a single model that fully interacts the treatment with subclass membership and then perform a linear hypothesis test.",
+                    "This estimates the subclass-specific intercept and subclass-specific treatment effect in each subclass.")
+
+    } else{
+      report="To estimate marginal effects after stratum matching, marginal mean weighting through stratification(MMWS) was used. "
+
+    }
   }
   report=paste0(report,"To estimate the '",yvar,"' effect and its standard error")
   if(!is.null(out$s.weights)){
@@ -257,8 +264,12 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep="",time="",statu
   } else{
     report=paste0(report,"as a predictor ")
   }
-  report=paste0(report,"and included the matching weights in the estimation. ",
-                "The coefficient on the '",yvar,"' was taken to be the estimate of the '",yvar,"' effect. ")
+  if(withinSubclass) {
+    report=paste0(report,". ")
+  } else{
+     report=paste0(report,"and included the matching weights in the estimation. ")
+  }
+  report=paste0(report,"The coefficient on the '",yvar,"' was taken to be the estimate of the '",yvar,"' effect. ")
   if(mode=="continuous") {
     report=paste0(report,"The lm() function was used to estimate the effect, ")
   } else if(mode=="binary") {
@@ -270,16 +281,16 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep="",time="",statu
     if(mode=="survival"){
       report=paste0(report,
                     "and a regular robust standard error was used because of the MMWS weights. ")
+    } else if(withinSubclass){
+      report=paste0(report,
+                    "and the within-subclass effects was estimated as the result of marginal effects procedure as "
+                    ,"implemented in the margins() function in the marigins package. ")
     } else{
       report=paste0(report,
                     "and a regular robust standard error as implemented in the vcovHC() function in the sandwich package was used",
                     " to estimate its standard error. ")
     }
-    if(withinSubclass){
-      report=paste0(report,
-                    "The within-subclass effects was estimated as the result of marginal effects procedure as "
-                    ,"implemented in the margins() function in the marigins package. ")
-    }
+
 
   } else{
     if(mode=="survival" & !is.null(out$info$replace)){
@@ -316,7 +327,7 @@ estimateEffect=function(out,mode="continuous",multiple=TRUE,dep="",time="",statu
 
 
     report=paste0(report,"indicating that the average effect of the '",
-                  yvar,"'")
+                  yvar,"' ")
     if(out$estimand=="ATT") {
       report=paste0(report,"for those who received it")
     } else if(out$estimand=="ATE") {
