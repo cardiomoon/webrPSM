@@ -466,12 +466,12 @@ makePPTList_matchit=function(x,depvar=NULL,time="",status="",seed=1234,
        code=c(code,temp)
      }
 
-     if(matchMethod %!in% c("exact","cem")){
-     title=c(title,"Covariates vs. Propensity Score")
-     type=c(type,"ggplot")
-     temp=paste0("ggPS(matched)")
-     code=c(code,temp)
-     }
+     # if(matchMethod %!in% c("exact","cem")){
+     # title=c(title,"Covariates vs. Propensity Score")
+     # type=c(type,"ggplot")
+     # temp=paste0("ggPS(matched)")
+     # code=c(code,temp)
+     # }
 
      title=c(title,"Change of Absolute Standardised Differences")
      type=c(type,"ggplot")
