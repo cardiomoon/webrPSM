@@ -431,10 +431,10 @@ makePPTList_matchit=function(x,depvar=NULL,time="",status="",seed=1234,
      type="Rcode"
      code=paste0("set.seed(",seed,")")
 
-     title=c(title,"Check Initial Imbalance")
-     type=c(type,"Rcode")
-     temp=paste0("out<-matchit(",paste0(deparse(matched$formula),collapse=""),",data=",dfname,",method=NULL,distance='glm')\nsummary(out)")
-     code=c(code,temp)
+     # title=c(title,"Check Initial Imbalance")
+     # type=c(type,"Rcode")
+     # temp=paste0("out<-matchit(",paste0(deparse(matched$formula),collapse=""),",data=",dfname,",method=NULL,distance='glm')\nsummary(out)")
+     # code=c(code,temp)
 
 
      # title=c(title,"Chi-square test before matching")
@@ -466,12 +466,12 @@ makePPTList_matchit=function(x,depvar=NULL,time="",status="",seed=1234,
        code=c(code,temp)
      }
 
-     # if(matchMethod %!in% c("exact","cem")){
-     # title=c(title,"Covariates vs. Propensity Score")
-     # type=c(type,"ggplot")
-     # temp=paste0("ggPS(matched)")
-     # code=c(code,temp)
-     # }
+     if(matchMethod %!in% c("exact","cem")){
+     title=c(title,"Covariates vs. Propensity Score")
+     type=c(type,"ggplot")
+     temp=paste0("ggPS(matched)")
+     code=c(code,temp)
+     }
 
      title=c(title,"Change of Absolute Standardised Differences")
      type=c(type,"ggplot")

@@ -4,7 +4,7 @@
 \alias{balancePlot}
 \title{Draw balance plot}
 \usage{
-balancePlot(x, show.point = FALSE, show.label = TRUE, show.legend = FALSE)
+balancePlot(x, show.point = TRUE, show.label = FALSE, show.legend = FALSE)
 }
 \arguments{
 \item{x}{An object of class ps.cont}

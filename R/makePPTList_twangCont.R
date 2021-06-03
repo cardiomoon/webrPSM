@@ -16,7 +16,7 @@
 #' balancePlot(model)
 #' }
 #' @export
-balancePlot=function(x,show.point=FALSE,show.label=TRUE, show.legend=FALSE){
+balancePlot=function(x,show.point=TRUE,show.label=FALSE, show.legend=FALSE){
     res=twangContinuous::bal.table(x, digits = 3)
     colnames(res)=c("Unweighted","Weightd")
     res$id=row.names(res)
