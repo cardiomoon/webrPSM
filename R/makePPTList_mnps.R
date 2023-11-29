@@ -87,17 +87,17 @@ estimateEffectTwang=function(out,dep="",time="",status,stop.method="es.mean",adj
     # method="lm"
     # method="glm"
      # dep="status";time="";stop.method="es.mean";adjustCovar=FALSE;method="GBM"
-    if(class(out)=="ps"){
+    if(inherits(out,"ps")){
         yvar=out$gbm.obj$response.name
         xvars=out$gbm.obj$var.names
-    } else if(class(out)=="mnps"){
+    } else if(inherits(out,"mnps")){
 
         yvar=out$treat.var
         xvars=attr(out[[1]][[1]]$gbm.obj$Terms,"term.labels")
         stop.method=out$stopMethods[1]
     }
     data1=out$data
-    if((class(out)=="mnps")&(out$estimand=="ATT")){
+    if(inherits(out,"mnps")&(out$estimand=="ATT")){
         data1[[yvar]]=relevel(data1[[yvar]],ref=out$treatATT)
     }
     if(time!=""){

@@ -55,6 +55,8 @@ make pptList with an object of class matchit
 }
 \examples{
 require(MatchIt)
+require(cobalt)
+require(survival)
 x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
    method="subclass",subclass=4)
 x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
@@ -66,6 +68,6 @@ x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalo
 result=makePPTList_matchit(x)
 result=makePPTList_matchit(x,depvar="re78",analyzeSens=TRUE)
 data("GBSG2",package="TH.data")
-x=matchit(horTh~age+menostat+tsize+tgrade+pnodes+progrec+estrec,data=GBSG2)
+x=matchit(horTh~age+menostat+tsize+tgrade+pnodes+progrec+estrec,data=GBSG2,method="full")
 result=makePPTList_matchit(x,time="time",status="cens")
 }

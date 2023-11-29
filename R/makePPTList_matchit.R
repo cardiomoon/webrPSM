@@ -364,6 +364,8 @@ formula2vars=function(formula,allowInteraction=FALSE){
 #' @export
 #' @examples
 #' require(MatchIt)
+#' require(cobalt)
+#' require(survival)
 #' x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
 #'    method="subclass",subclass=4)
 #' x=matchit(treat ~ age + educ + race + married+nodegree + re74 + re75, data =lalonde,
@@ -375,7 +377,7 @@ formula2vars=function(formula,allowInteraction=FALSE){
 #' result=makePPTList_matchit(x)
 #' result=makePPTList_matchit(x,depvar="re78",analyzeSens=TRUE)
 #' data("GBSG2",package="TH.data")
-#' x=matchit(horTh~age+menostat+tsize+tgrade+pnodes+progrec+estrec,data=GBSG2)
+#' x=matchit(horTh~age+menostat+tsize+tgrade+pnodes+progrec+estrec,data=GBSG2,method="full")
 #' result=makePPTList_matchit(x,time="time",status="cens")
 makePPTList_matchit=function(x,depvar=NULL,time="",status="",seed=1234,
                              m.threshold=0.1,v.threshold=2,
@@ -492,7 +494,7 @@ makePPTList_matchit=function(x,depvar=NULL,time="",status="",seed=1234,
 
      title=c(title,"Matched data")
      type=c(type,"Rcode")
-     temp=paste0("match.data = match.data(matched)\nhead(match.data)")
+     temp=paste0("matched.data = match.data(matched)\nhead(matched.data)")
 
      eval(parse(text=temp))
 
@@ -568,6 +570,17 @@ makePPTList_matchit=function(x,depvar=NULL,time="",status="",seed=1234,
          code=c(code,"cat(attr(effect,'report'))")
 
        }
+       title=c(title,"Unadjusted Survival Curves")
+       type=c(type,"ggplot")
+       code=c(code,paste0("fit1<-survfit(Surv(",time,",",status,")~",yvar,",data = matched.data);autoReg::adjustedPlot(fit1,se=TRUE)"))
+       # title=c(title,"Create Adjusted Survival Curves")
+       # type=c(type,"Rcode")
+       # code=c(code,paste0("fit2<-survfit(Surv(",time,",",status,")~",yvar,",data = match.data(matched),weights=weights);fit2"))
+       title=c(title,"Adjusted Survival Curve")
+       type=c(type,"ggplot")
+       code=c(code,paste0("fit2<-survfit(Surv(",time,",",status,")~",yvar,",data = matched.data,weights=weights);autoReg::adjustedPlot(fit2,se=TRUE)"))
+       #code=c(code,paste0("adjustedPlot(fit2,xnames='",yvar,"',se=TRUE)"))
+
      } else if(!is.null(depvar)){
        # str(depvar)
        title=c(title,"Estimating Treatment Effect")
@@ -599,6 +612,7 @@ makePPTList_matchit=function(x,depvar=NULL,time="",status="",seed=1234,
            code=c(code,paste0("gammaRangeSearchFull(matched,dep='",depvar,"')"))
          }
        }
+
      }
 
      data.frame(title,type,code,stringsAsFactors = FALSE)

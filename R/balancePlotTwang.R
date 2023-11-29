@@ -3,7 +3,7 @@
 #' @param show.label logical Whether or not show label
 #' @param show.legend logical Whether or not show legend
 #' @param rowByGroup logical If true, draw row by group
-#' @importFrom ggplot2 aes_string facet_grid
+#' @importFrom ggplot2 aes_string facet_grid geom_hline labs
 #' @examples
 #' library(twang)
 #' data(AOD)

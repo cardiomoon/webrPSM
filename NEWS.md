@@ -1,3 +1,10 @@
+# webrPSM ver 0.2.1
+===================
+(2023-Nov-29)
+
+* delete function findOptimalK 
+* Rewrite function makePPTList_matchit  
+
 # webrPSM ver 0.2.0
 ===================
 (2021-June-2)
