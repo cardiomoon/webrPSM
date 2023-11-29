@@ -570,15 +570,19 @@ makePPTList_matchit=function(x,depvar=NULL,time="",status="",seed=1234,
          code=c(code,"cat(attr(effect,'report'))")
 
        }
-       title=c(title,"Unadjusted Survival Curves")
-       type=c(type,"ggplot")
-       code=c(code,paste0("fit1<-survfit(Surv(",time,",",status,")~",yvar,",data = matched.data);autoReg::adjustedPlot(fit1,se=TRUE)"))
-       # title=c(title,"Create Adjusted Survival Curves")
-       # type=c(type,"Rcode")
-       # code=c(code,paste0("fit2<-survfit(Surv(",time,",",status,")~",yvar,",data = match.data(matched),weights=weights);fit2"))
+
+       # title=c(title,"Unadjusted Survival Curves")
+       # type=c(type,"ggplot")
+       # code=c(code,paste0("fit1<-survfit(Surv(",time,",",status,")~",yvar,",data = matched.data);autoReg::adjustedPlot(fit1,se=TRUE)"))
+       #
+
+
+       title=c(title,"")
+       type=c(type,"dropdown")
+       code=c(code,"checkboxInput('se','show se',value=FALSE)")
        title=c(title,"Adjusted Survival Curve")
        type=c(type,"ggplot")
-       code=c(code,paste0("fit2<-survfit(Surv(",time,",",status,")~",yvar,",data = matched.data,weights=weights);autoReg::adjustedPlot(fit2,se=TRUE)"))
+       code=c(code,paste0("fit2<-survfit(Surv(",time,",",status,")~",yvar,",data = matched.data,weights=weights);autoReg::adjustedPlot(fit2,se={input$se})"))
        #code=c(code,paste0("adjustedPlot(fit2,xnames='",yvar,"',se=TRUE)"))
 
      } else if(!is.null(depvar)){
