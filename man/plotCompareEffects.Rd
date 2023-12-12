@@ -11,6 +11,7 @@ plotCompareEffects(
   treatvar = NULL,
   weights = "IPW",
   seed = 1234,
+  se = TRUE,
   print = TRUE
 )
 }
@@ -26,6 +27,8 @@ plotCompareEffects(
 \item{weights}{Name of weight variable}
 
 \item{seed}{A single integer}
+
+\item{se}{logical}
 
 \item{print}{logical}
 }

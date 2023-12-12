@@ -213,6 +213,7 @@ zelig2est=function(out,probs=0.1*(1:9),num=10000){
 #' @param treatvar Name of treatment variable
 #' @param weights Name of weight variable
 #' @param seed A single integer
+#' @param se logical
 #' @param print logical
 #' @importFrom dplyr bind_rows
 #' @importFrom ggplot2 geom_ribbon
@@ -221,7 +222,7 @@ zelig2est=function(out,probs=0.1*(1:9),num=10000){
 #' set.seed(1234)
 #' mydata=addIPW(treat~x1+x2,data=simData2)
 #' plotCompareEffects(mydata)
-plotCompareEffects=function(data,dep="y",xvars=NULL,treatvar=NULL,weights="IPW",seed=1234,print=TRUE){
+plotCompareEffects=function(data,dep="y",xvars=NULL,treatvar=NULL,weights="IPW",seed=1234,se=TRUE,print=TRUE){
     # if(is.null(xvars)) xvars=attr(data,"xvars")
     # if(is.null(treatvar)) treatvar=attr(data,"treatvar")
     # set.seed(seed)
@@ -237,10 +238,9 @@ plotCompareEffects=function(data,dep="y",xvars=NULL,treatvar=NULL,weights="IPW",
              IPW_estimate %>% mutate(model="PS"))
     df
     p<-ggplot(df,aes_string(x="treat",y="est",fill="model"))+
-    geom_line(aes_string(color="model"))+
-    geom_ribbon(aes_string(ymin="lower",ymax="upper"),alpha=0.3)+
-    theme_bw()+
-    theme(legend.position="top")
+    geom_line(aes_string(color="model"))
+    if(se) p<-p+ geom_ribbon(aes_string(ymin="lower",ymax="upper"),alpha=0.3)
+    p<-p+ theme_bw()+  theme(legend.position="top")
 
     if(print) print(p)
 
@@ -279,9 +279,13 @@ makePPTList_IPW=function(x,dep="",seed=1234){
     type=c(type,"Rcode")
     code=c(code,paste0("plotCompareEffects(mydata,dep='",dep,"',seed=",seed,",print=FALSE)$result"))
 
+    title=c(title,"")
+    type=c(type,"dropdown")
+    code=c(code,"checkboxInput('se','se',value=TRUE)")
+
     title=c(title,"Comparing Effect with Linear Model")
     type=c(type,"ggplot")
-    code=c(code,paste0("plotCompareEffects(mydata,dep='",dep,"',seed=",seed,",print=FALSE)$plot"))
+    code=c(code,paste0("plotCompareEffects(mydata,dep=\"",dep,"\",seed=",seed,",se={input$se},print=FALSE)$plot"))
 
     }
     data.frame(title=title,type=type,code=code,stringsAsFactors = FALSE)

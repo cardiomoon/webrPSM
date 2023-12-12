@@ -78,10 +78,14 @@ makePPTList_twangCont=function(x,dep="",seed=1234){
                paste0("design.ps <- svydesign(ids=~1, weights=~wts, data=",dataname,")"),
                paste0("outcome.model <- svyglm(",dep,"~",yvar,",design = design.ps, family = gaussian())"),
                "summary(outcome.model)","confint(outcome.model)")
+        title=c(title,"")
+        type=c(type,"dropdown")
+        code=c(code,"checkboxInput('se','se',value=TRUE)")
+
         title=c(title,"Dose-Response Estimate")
         type=c(type,"ggplot")
-        temp=paste0("plotCompareEffects(",dataname,",dep='",dep,"',xvars=",paste0("c('",paste0(xvars,collapse="','"),"')"),
-                    ",treatvar='",yvar,"',weights='wts')")
+        temp=paste0("plotCompareEffects(",dataname,",dep=\"",dep,"\",xvars=",paste0("c(\"",paste0(xvars,collapse="\",\""),"\")"),
+                    ",treatvar=\"",yvar,"\",weights=\"wts\",se={input$se})")
         code=c(code,temp)
 
     }
