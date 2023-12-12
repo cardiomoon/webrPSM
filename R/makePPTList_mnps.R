@@ -39,6 +39,17 @@ makePPTList_mnps=function(x,dep="",time="",status="",adjustCovar=FALSE,covars=""
         type=c(type,"Rcode")
         code=c(code,paste0("summary(estimateEffectTwang(out,time='",time,"',status=',",status,"',adjustCovar = ",adjustCovar,
                            ",method='",method,"'))"))
+
+        title=c(title,"","","","")
+        type=c(type,rep("dropdown",4))
+        code=c(code,"checkboxInput('pval','pval',value=FALSE)","checkboxInput('conf.int','conf.int',value=FALSE)","checkboxInput('censor','censor',value=TRUE)",
+               "checkboxInput('risk.table','risk.table',value=FALSE)")
+
+
+        title=c(title,"Adjusted Survival Curve")
+        type=c(type,"ggplot")
+        code=c(code,paste0("adjustedPlot_mnps(out,time=\"",time,"\",status=\"",status,"\",pval={input$pval},
+                          conf.int={input$conf.int},censor={input$censor},risk.table={input$risk.table})"))
     } else{
         title=c(title,"Estimation of Treatment Effect")
         type=c(type,"Rcode")
@@ -49,6 +60,32 @@ makePPTList_mnps=function(x,dep="",time="",status="",adjustCovar=FALSE,covars=""
     data.frame(title,type,code,stringsAsFactors = FALSE)
 }
 
+#' Draw adjusted survival curve using weights
+#' @param out An object of class mnps
+#' @param time Name of time variable
+#' @param status Name of status variable
+#' @param ... further arguments to be passed survminer::ggsurvplot
+#' @importFrom survminer ggsurvplot
+#' @importFrom survival Surv survfit
+#' @importFrom twang get.weights
+#' @export
+#' @return an object of class ggsurvplot
+#' @examples
+#' library(twang)
+#' data(cancer,package="survival")
+#' out=mnps(rx~nodes+differ+adhere+obstruct+surg+extent+node4,data=colon,verbose=FALSE,n.trees=3000)
+#' adjustedPlot_mnps(out,time="time",status="status")
+#' adjustedPlot_mnps(out,time="time",status="status",pval=TRUE,risk.table=TRUE)
+adjustedPlot_mnps=function(out,time="",status="",...){
+    #time="time";status="status";method="es.mean"
+    data1=out$data
+    yvar=out$treat.var
+    stop.method=out$stopMethods[1]
+    data1$w<-twang::get.weights(out,stop.method = stop.method)
+    temp=paste0("survival::Surv(",time,",",status,")~",yvar)
+    result=eval(parse(text=paste0("survfit(",temp,",data=data1,weights=w)")))
+    survminer::ggsurvplot(result,data=data1,...)
+}
 
 #' Estimate Treatment Effect
 #' @param out An object of class ps
@@ -73,10 +110,10 @@ makePPTList_mnps=function(x,dep="",time="",status="",adjustCovar=FALSE,covars=""
 #'estimand="ATT",treatATT="community",stop.method=c("es.mean","ks.mean"),verbose=FALSE,n.trees = 3000)
 #'estimateEffectTwang(out1,dep="suf12")
 #'data(cancer,package="survival")
-#'fit=mnps(rx~nodes+differ+adhere+obstruct+surg+extent+node4,data=colon,verbose=FALSE,n.trees=3000)
-#'result=estimateEffectTwang(fit,dep="status",time="time",status="status")
+#'out=mnps(rx~nodes+differ+adhere+obstruct+surg+extent+node4,data=colon,verbose=FALSE,n.trees=3000)
+#'result=estimateEffectTwang(out,dep="status",time="time",status="status")
 #'summary(result)
-#'estimateEffectTwang(fit,dep="status")
+#'estimateEffectTwang(out,dep="status")
 #'}
 estimateEffectTwang=function(out,dep="",time="",status,stop.method="es.mean",adjustCovar=FALSE,method="GBM"){
 
@@ -86,7 +123,7 @@ estimateEffectTwang=function(out,dep="",time="",status,stop.method="es.mean",adj
     # method="GBM"
     # method="lm"
     # method="glm"
-     # dep="status";time="";stop.method="es.mean";adjustCovar=FALSE;method="GBM"
+    #  dep="status";time="time";status="status";stop.method="es.mean";adjustCovar=FALSE;method="GBM"
     if(inherits(out,"ps")){
         yvar=out$gbm.obj$response.name
         xvars=out$gbm.obj$var.names

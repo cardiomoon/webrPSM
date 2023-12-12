@@ -23,4 +23,7 @@ x=matchit(formula, data =lalonde, method= "full",link="probit")
 PSMTable(x,grouplabel=c("Control","Treated"))
 x=matchit(formula, data =lalonde, method= "nearest")
 PSMTable(x,grouplabel=c("Control","Treated"))
+data("GBSG2",package="TH.data")
+x=matchit(horTh~age+menostat+tsize+tgrade+pnodes+progrec+estrec,data=GBSG2,method="full")
+PSMTable(x)
 }

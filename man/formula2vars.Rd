@@ -17,5 +17,6 @@ Extract variable names with formula
 \examples{
 formula = treat ~ age + educ + race + married+nodegree + re74 + re75
 formula = treat ~ age+ race+ age:race
+formula = horTh ~ age + menostat + tsize + tgrade + pnodes + progrec + estrec
 formula2vars(formula)
 }

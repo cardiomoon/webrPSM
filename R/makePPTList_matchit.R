@@ -101,6 +101,9 @@ pformat=function(x,digits=3){
 #' PSMTable(x,grouplabel=c("Control","Treated"))
 #' x=matchit(formula, data =lalonde, method= "nearest")
 #' PSMTable(x,grouplabel=c("Control","Treated"))
+#' data("GBSG2",package="TH.data")
+#' x=matchit(horTh~age+menostat+tsize+tgrade+pnodes+progrec+estrec,data=GBSG2,method="full")
+#' PSMTable(x)
 PSMTable=function(x,digitsstd=3,grouplabel=NULL){
 
     # digitsstd=3;grouplabel=NULL
@@ -326,10 +329,13 @@ call2param=function(call){
 #' @examples
 #'formula = treat ~ age + educ + race + married+nodegree + re74 + re75
 #'formula = treat ~ age+ race+ age:race
+#'formula = horTh ~ age + menostat + tsize + tgrade + pnodes + progrec + estrec
 #'formula2vars(formula)
 formula2vars=function(formula,allowInteraction=FALSE){
     temp=deparse(formula)
+    if(length(temp)>1) temp=paste0(temp,collapse="")
     temp=gsub(" ","",temp)
+
     temp=unlist(strsplit(temp,"~"))
     yvar=temp[1]
     yvar
@@ -361,6 +367,7 @@ formula2vars=function(formula,allowInteraction=FALSE){
 #' @importFrom sandwich vcovCL
 #' @importFrom MatchIt matchit
 #' @importFrom cobalt bal.plot bal.tab
+#' @importFrom survminer ggsurvplot
 #' @export
 #' @examples
 #' require(MatchIt)
@@ -576,13 +583,21 @@ makePPTList_matchit=function(x,depvar=NULL,time="",status="",seed=1234,
        # code=c(code,paste0("fit1<-survfit(Surv(",time,",",status,")~",yvar,",data = matched.data);autoReg::adjustedPlot(fit1,se=TRUE)"))
        #
 
-
        title=c(title,"")
-       type=c(type,"dropdown")
-       code=c(code,"checkboxInput('se','show se',value=FALSE)")
+       type=c(type,"Rcode")
+       code=c(code,paste0("fit2<-survfit(Surv(",time,",",status,")~",yvar,",data = match.data(matched),weights=weights)"))
+
+
+       title=c(title,"","","","")
+       type=c(type,rep("dropdown",4))
+       code=c(code,"checkboxInput('pval','pval',value=FALSE)","checkboxInput('conf.int','conf.int',value=FALSE)","checkboxInput('censor','censor',value=TRUE)",
+              "checkboxInput('risk.table','risk.table',value=FALSE)")
+
+
        title=c(title,"Adjusted Survival Curve")
        type=c(type,"ggplot")
-       code=c(code,paste0("fit2<-survfit(Surv(",time,",",status,")~",yvar,",data = matched.data,weights=weights);autoReg::adjustedPlot(fit2,se={input$se})"))
+       code=c(code,paste0("survminer::ggsurvplot(fit2,data=matched.data,pval={input$pval},
+                          conf.int={input$conf.int},censor={input$censor},risk.table={input$risk.table})"))
        #code=c(code,paste0("adjustedPlot(fit2,xnames='",yvar,"',se=TRUE)"))
 
      } else if(!is.null(depvar)){

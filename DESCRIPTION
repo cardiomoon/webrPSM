@@ -1,7 +1,7 @@
 Package: webrPSM
 Type: Package
 Title: Propensity Score Matching for Web-R
-Version: 0.2.1
+Version: 0.2.2
 Imports:
    MatchIt,
    lmtest,
@@ -13,6 +13,7 @@ Imports:
    gridExtra,
    moonBook,
    officer,
+   survminer,
    stringr,
    tidyr,
    ztable,
@@ -28,8 +29,8 @@ Imports:
    twang,
    twangContinuous,
    sensitivitymw,
-   sensitivityfull
-Suggest: TH.data
+   sensitivityfull,
+   TH.data
 Authors@R: c(person("Keon-Woong", "Moon", email = "cardiomoon@gmail.com",
     role = c("aut", "cre")),
     person("Young Min","Baek",role=c("ctb"), email="ymbaek@yonsei.ac.kr"),

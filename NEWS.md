@@ -1,3 +1,10 @@
+# webrPSM ver 0.2.2
+===================
+(2023-Dec-12)
+
+* new function adjustedPlot_mnps added
+* Rewrite function makePPTList_matchit 
+
 # webrPSM ver 0.2.1
 ===================
 (2023-Nov-29)
