@@ -50,7 +50,7 @@ makePPTList_mnps=function(x,dep="",time="",status="",adjustCovar=FALSE,covars=""
         type=c(type,"ggplot")
         code=c(code,paste0("adjustedPlot_mnps(out,time=\"",time,"\",status=\"",status,"\",pval={input$pval},
                           conf.int={input$conf.int},censor={input$censor},risk.table={input$risk.table})"))
-    } else{
+    } else if(dep!=""){
         title=c(title,"Estimation of Treatment Effect")
         type=c(type,"Rcode")
         code=c(code,paste0("estimateEffectTwang(out,dep='",dep,"',adjustCovar = ",adjustCovar,

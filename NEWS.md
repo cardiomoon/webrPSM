@@ -1,3 +1,9 @@
+# webrPSM ver 0.2.3
+===================
+(2024-Jan-5)
+
+* Bug fixed in function makePPTList_mnps
+
 # webrPSM ver 0.2.2
 ===================
 (2023-Dec-12)
